@@ -1,6 +1,5 @@
 # Ignore all secret and obsolete files
-*.env
-*.tfvars
+**/.env
+**/*.tfvars
 *venv*
-
 **/terraform*

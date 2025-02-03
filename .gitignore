@@ -2,3 +2,5 @@
 *.env
 *.tfvars
 *venv*
+
+**/terraform*

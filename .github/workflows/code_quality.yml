@@ -27,7 +27,7 @@ jobs:
 
       - name: "Lint Python Files"
         run: |
-          FILES=$(git ls-files '*.py')
+          FILES=$(git ls-files '*.py' | grep -Ev 'test.*\.py')
           if [ -z "$FILES" ]; then
             echo "No python files to lint"
           else

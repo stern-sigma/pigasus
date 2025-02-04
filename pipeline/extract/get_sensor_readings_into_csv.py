@@ -42,26 +42,26 @@ def save_data_to_csv(data: list[dict], filename="plant_data.csv") -> None:
     if not data:
         raise ValueError("No data provided to save.")
 
-    # Extract the headers (keys from the first plant's data)
-    headers = set()
+    # Collect headers dynamically without using a set
+    headers = []
     for plant in data:
-        headers.update(plant.keys())
-        # Handle nested dictionaries like "botanist" and "origin_location"
-        if 'botanist' in plant:
-            headers.add('botanist')
-        if 'origin_location' in plant:
-            headers.add('origin_location')
+        for key in plant.keys():
+            if key not in headers:
+                headers.append(key)
 
-    headers = list(headers)
+    # Ensure 'botanist' and 'origin_location' are included if present in any record
+    for plant in data:
+        if 'botanist' in plant and 'botanist' not in headers:
+            headers.append('botanist')
+        if 'origin_location' in plant and 'origin_location' not in headers:
+            headers.append('origin_location')
 
-    # Write to CSV file
     with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=headers)
         writer.writeheader()
         for plant in data:
             flattened_plant = plant.copy()
 
-            # Handle nested dictionaries by serializing them as strings
             if 'botanist' in flattened_plant:
                 flattened_plant['botanist'] = json.dumps(
                     flattened_plant['botanist'])
@@ -69,12 +69,13 @@ def save_data_to_csv(data: list[dict], filename="plant_data.csv") -> None:
                 flattened_plant['origin_location'] = json.dumps(
                     flattened_plant['origin_location'])
 
-            # Fill missing values with None (which will be written as null in CSV)
+            # Fill missing fields with 'null'
             for header in headers:
                 if header not in flattened_plant:
                     flattened_plant[header] = 'null'
 
             writer.writerow(flattened_plant)
+
 
 
 def retrieve_plant_data(base_url: str, max_runtime: int = 30) -> list[dict]:

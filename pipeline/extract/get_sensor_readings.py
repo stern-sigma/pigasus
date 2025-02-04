@@ -18,7 +18,7 @@ def get_max_plant_id(base_url: str) -> int:
     if data and "plants_on_display" in data:
         return data["plants_on_display"]
     raise ValueError(f"Failed to fetch status information. Status code: {
-                         response.status_code}")
+        response.status_code}")
 
 
 def get_plant_data(base_url: str, plant_id: int) -> dict:
@@ -32,7 +32,7 @@ def get_plant_data(base_url: str, plant_id: int) -> dict:
               plant_id}")
         return plant_data
     raise ValueError(f"Failed to fetch data for plant ID {
-                         plant_id}. Status code: {response.status_code}")
+        plant_id}. Status code: {response.status_code}")
 
 
 def save_data_to_json(data, filename="plant_data.json") -> None:

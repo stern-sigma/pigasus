@@ -24,4 +24,10 @@ jobs:
         run: pip3 install -r requirements.txt
 
       - name: "Lint Python Files"
-        run: pylint $(git ls-files '*.py')--fail-under=9
+        run: |
+          FILES=$(git ls-files '*.py')
+          if [ -z "$FILES" ]; then
+            echo "No python files to lint"
+          else
+            pylint $FILES --fail-under=9
+          fi

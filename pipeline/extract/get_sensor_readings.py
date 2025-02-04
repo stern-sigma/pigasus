@@ -68,12 +68,7 @@ def retrieve_plant_data(base_url: str, max_runtime: int = 30) -> list[dict]:
     return all_plants_data
 
 
-def main():
-    """Main function to execute the script."""
-    base_url = "https://data-eng-plants-api.herokuapp.com/"
-    plant_data = retrieve_plant_data(base_url)
-    save_data_to_json(plant_data)
-    print(f"Data for {len(plant_data)} plants saved successfully.")
+
 
 
 if __name__ == "__main__":

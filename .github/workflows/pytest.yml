@@ -2,8 +2,8 @@ name: Run Pytest with Coverage Check
 
 on:
   push:
-  workflow_dispatch:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   pytest:
@@ -33,11 +33,11 @@ jobs:
 
       - name: Run Pytest with Coverage Check
         run: |
-          pytest --cov=./ --cov-fail-under=80 || \
-          if [ $? -eq 5 ]; then
-            echo "No tests found, but continuing workflow."
+          if pytest --collect-only | grep -q "collected 0 items"; then
+            echo "No tests collected, skipping coverage check."
           else
-            exit $?
+            pytest --cov=./ --cov-fail-under=80
           fi
+
 
 

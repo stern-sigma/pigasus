@@ -3,7 +3,12 @@ import json
 from time import time
 from requests import get
 
-
+def main():
+    """Main function to execute the script."""
+    base_url = "https://data-eng-plants-api.herokuapp.com/"
+    plant_data = retrieve_plant_data(base_url)
+    save_data_to_json(plant_data)
+    print(f"Data for {len(plant_data)} plants saved successfully.")
 
 
 def get_max_plant_id(base_url: str) -> int:
@@ -24,7 +29,7 @@ def get_plant_data(base_url: str, plant_id: int) -> dict:
     if response.status_code == 200:
         plant_data = response.json()
         print(f"Successfully fetched data for Plant ID {
-              plant_id}")  # Print the plant data
+              plant_id}")
         return plant_data
     raise ValueError(f"Failed to fetch data for plant ID {
                          plant_id}. Status code: {response.status_code}")
@@ -36,7 +41,7 @@ def save_data_to_json(data, filename="plant_data.json") -> None:
         json.dump(data, f, indent=4)
 
 
-def retrieve_plant_data(base_url: str, max_runtime: int = 300) -> list[dict]:
+def retrieve_plant_data(base_url: str, max_runtime: int = 30) -> list[dict]:
     """Returns 5 minutes worth of plant data."""
     try:
         max_id = get_max_plant_id(base_url)

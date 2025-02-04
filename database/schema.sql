@@ -86,7 +86,7 @@ CREATE TABLE alpha.reading (
     temperature DECIMAL NOT NULL,
     at DATETIME NOT NULL,
     botanist_id SMALLINT NOT NULL,
-    last_watered DATETIME,
+    last_watered DATETIME NOT NULL,
     FOREIGN KEY (botanist_id) REFERENCES alpha.botanist(botanist_id),
     FOREIGN KEY (plant_id) REFERENCES alpha.plant(plant_id)
 );

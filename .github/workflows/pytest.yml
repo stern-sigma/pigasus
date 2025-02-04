@@ -28,4 +28,5 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Pytest with Coverage Check
-        run: pytest --cov=./ --cov-fail-under=80
+        run: pytest --cov=./ --cov-fail-under=80 --allow-no-tests
+

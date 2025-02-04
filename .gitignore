@@ -3,3 +3,4 @@
 **/*.tfvars
 **/*venv*
 **/terraform*
+**/.terraform**

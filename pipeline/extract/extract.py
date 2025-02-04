@@ -5,8 +5,7 @@ from requests import get, exceptions
 
 
 def extract_plant_batch() -> list[dict]:
-    """Main function to execute the script.
-    Returns list of dictionaries for all successful plant get requests """
+    """Returns list of dictionaries for all successful plant get requests """
     base_url = "https://data-eng-plants-api.herokuapp.com/"
     plant_data_list = []
 

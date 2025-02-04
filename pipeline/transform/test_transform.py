@@ -100,6 +100,3 @@ def test_botanist_data_column_missing_for_one_plant():
     pd.testing.assert_frame_equal(result, expected_result)
 
 
-
-
-

@@ -1,5 +1,6 @@
 """This script will fetch data from the API to be studied"""
 import json
+
 from time import time
 from requests import get
 

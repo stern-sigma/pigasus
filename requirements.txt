@@ -1,0 +1,3 @@
+# Requirements for pigasus, update as needed...
+pytest
+pylint

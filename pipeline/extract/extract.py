@@ -4,7 +4,7 @@ data should be a list in dictionaries ready for transformation at the next stage
 from requests import get, exceptions
 
 
-def main() -> list[dict]:
+def extract_plant_batch() -> list[dict]:
     """Main function to execute the script.
     Returns list of dictionaries for all successful plant get requests """
     base_url = "https://data-eng-plants-api.herokuapp.com/"
@@ -16,6 +16,7 @@ def main() -> list[dict]:
             plant_data_list.append(plant_data)
         except ValueError as e:
             print(f"Error fetching data for plant ID {plant_id}: {e}")
+            # TODO: change all prints to logs
 
     print(f"Retrieved data for {len(plant_data_list)} plants.")
     return plant_data_list
@@ -24,6 +25,7 @@ def main() -> list[dict]:
 def get_plant_data(base_url: str, plant_id: int) -> dict:
     """
     Returns data for a specific plant based on its ID number.
+    
     Raises:
         ValueError: If the data for the plant cannot be fetched.
     """
@@ -45,4 +47,4 @@ def get_plant_data(base_url: str, plant_id: int) -> dict:
 
 
 if __name__ == "__main__":
-    main_data = main()
+    main_data = extract_plant_batch()

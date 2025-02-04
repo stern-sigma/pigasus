@@ -2,7 +2,7 @@ DROP DATABASE IF EXISTS plant_db;
 
 CREATE DATABASE plant_db;
 
-USE test_db;
+USE plant_db;
 
 CREATE TABLE botanist (
     botanist_id SMALLINT PRIMARY KEY IDENTITY(1,1),
@@ -80,7 +80,8 @@ CREATE TABLE reading (
     at DATETIME NOT NULL,
     botanist_id SMALLINT NOT NULL,
     last_watered DATETIME,
-    FOREIGN KEY (botanist_id) REFERENCES botanist(botanist_id)
+    FOREIGN KEY (botanist_id) REFERENCES botanist(botanist_id),
+    FOREIGN KEY (plant_id) REFERENCES plant(plant_id)
 );
 
 

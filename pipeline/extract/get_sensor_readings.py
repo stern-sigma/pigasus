@@ -1,32 +1,32 @@
-import csv
-from requests import get
-from time import time
+"""This script will fetch data from the API to be studied"""
 import json
+from time import time
+from requests import get
+
+
 
 
 def get_max_plant_id(base_url: str) -> int:
     """Returns greatest ID predicted by max_plants_on_display."""
-    response = get(base_url)
+    response = get(base_url, timeout=10)
     data = response.json()
     if data and "plants_on_display" in data:
         return data["plants_on_display"]
-    else:
-        raise ValueError(f"Failed to fetch status information. Status code: {
+    raise ValueError(f"Failed to fetch status information. Status code: {
                          response.status_code}")
 
 
 def get_plant_data(base_url: str, plant_id: int) -> dict:
     """Returns data for a specific plant based on ID number."""
     url = f"{base_url}plants/{plant_id}"
-    response = get(url)
+    response = get(url, timeout=10)
 
     if response.status_code == 200:
         plant_data = response.json()
         print(f"Successfully fetched data for Plant ID {
               plant_id}")  # Print the plant data
         return plant_data
-    else:
-        raise ValueError(f"Failed to fetch data for plant ID {
+    raise ValueError(f"Failed to fetch data for plant ID {
                          plant_id}. Status code: {response.status_code}")
 
 
@@ -65,8 +65,8 @@ def retrieve_plant_data(base_url: str, max_runtime: int = 300) -> list[dict]:
 
 def main():
     """Main function to execute the script."""
-    BASE_URL = "https://data-eng-plants-api.herokuapp.com/"
-    plant_data = retrieve_plant_data(BASE_URL)
+    base_url = "https://data-eng-plants-api.herokuapp.com/"
+    plant_data = retrieve_plant_data(base_url)
     save_data_to_json(plant_data)
     print(f"Data for {len(plant_data)} plants saved successfully.")
 

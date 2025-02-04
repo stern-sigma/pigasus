@@ -1,14 +1,15 @@
-"""This script will fetch data from the API to be studied"""
+"""This script retrieves the data from the API and turns it into a CSV file"""
+import csv
 import json
-
 from time import time
 from requests import get
+
 
 def main():
     """Main function to execute the script."""
     base_url = "https://data-eng-plants-api.herokuapp.com/"
     plant_data = retrieve_plant_data(base_url)
-    save_data_to_json(plant_data)
+    save_data_to_csv(plant_data)
     print(f"Data for {len(plant_data)} plants saved successfully.")
 
 
@@ -36,10 +37,45 @@ def get_plant_data(base_url: str, plant_id: int) -> dict:
         plant_id}. Status code: {response.status_code}")
 
 
-def save_data_to_json(data, filename="plant_data.json") -> None:
-    """Saves fetched plant data into a JSON file."""
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
+def save_data_to_csv(data: list[dict], filename="plant_data.csv") -> None:
+    """Saves fetched plant data into a CSV file."""
+    if not data:
+        raise ValueError("No data provided to save.")
+
+    # Collect headers dynamically without using a set
+    headers = []
+    for plant in data:
+        for key in plant.keys():
+            if key not in headers:
+                headers.append(key)
+
+    # Ensure 'botanist' and 'origin_location' are included if present in any record
+    for plant in data:
+        if 'botanist' in plant and 'botanist' not in headers:
+            headers.append('botanist')
+        if 'origin_location' in plant and 'origin_location' not in headers:
+            headers.append('origin_location')
+
+    with open(filename, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.DictWriter(file, fieldnames=headers)
+        writer.writeheader()
+        for plant in data:
+            flattened_plant = plant.copy()
+
+            if 'botanist' in flattened_plant:
+                flattened_plant['botanist'] = json.dumps(
+                    flattened_plant['botanist'])
+            if 'origin_location' in flattened_plant:
+                flattened_plant['origin_location'] = json.dumps(
+                    flattened_plant['origin_location'])
+
+            # Fill missing fields with 'null'
+            for header in headers:
+                if header not in flattened_plant:
+                    flattened_plant[header] = 'null'
+
+            writer.writerow(flattened_plant)
+
 
 
 def retrieve_plant_data(base_url: str, max_runtime: int = 30) -> list[dict]:
@@ -67,6 +103,9 @@ def retrieve_plant_data(base_url: str, max_runtime: int = 30) -> list[dict]:
         elapsed_time = time() - start_time
 
     return all_plants_data
+
+
+
 
 
 if __name__ == "__main__":

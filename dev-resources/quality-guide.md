@@ -31,9 +31,14 @@ This guide supplements and extends the project’s [Style Guide](./STYLE_GUIDE.m
 
 - **Inline Comments**: Avoid unnecessary comments. Use inline comments sparingly for non-obvious logic, following the guidelines in [PEP 8](https://peps.python.org/pep-0008/).
 
-
 ---
 
+## Function returns
+- Functions should only return one type of object
+- Where functions fail, they should always raise an exception
+- All exceptions should include a terse description of what went wrong
+
+---
 
 ## Testing
 
@@ -64,8 +69,6 @@ This guide supplements and extends the project’s [Style Guide](./STYLE_GUIDE.m
 
 - Cache expensive computations when possible.
 
-
-
 ---
 
 ## Security
@@ -81,4 +84,3 @@ This guide supplements and extends the project’s [Style Guide](./STYLE_GUIDE.m
 - **Pylint Score**: A minimum score of 9 is required for all Python modules.
 
 ---
-

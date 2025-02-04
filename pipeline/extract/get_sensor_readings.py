@@ -68,8 +68,5 @@ def retrieve_plant_data(base_url: str, max_runtime: int = 30) -> list[dict]:
     return all_plants_data
 
 
-
-
-
 if __name__ == "__main__":
     main()

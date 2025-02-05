@@ -2,6 +2,14 @@ data "aws_vpc" "c15-vpc" {
   id = var.AWS_VPC_ID
 }
 
+resource "aws_cloudwatch_log_group" "pipeline_log_group" {
+  name = "/aws/pigasus/lambda/pipeline"
+  retention_in_days = 7
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 locals {
@@ -109,6 +117,10 @@ resource "aws_lambda_function" "pipeline" {
 
   package_type = "Image"
   image_uri = "${aws_ecr_repository.pipeline_ecr.repository_url}:latest"
+
+  depends_on = [
+    aws_cloudwatch_log_group.pipeline_log_group
+  ]
 
   environment {
     variables = {

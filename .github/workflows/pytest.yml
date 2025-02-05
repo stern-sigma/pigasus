@@ -36,7 +36,7 @@ jobs:
           if pytest --collect-only | grep -q "collected 0 items"; then
             echo "No tests collected, skipping coverage check."
           else
-            pytest --cov=./ --cov-fail-under=80
+            pytest --cov=./ --cov-fail-under=80 --cov-omit="*test*"
           fi
 
 

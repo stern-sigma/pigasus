@@ -4,12 +4,26 @@ data should be a list in dictionaries ready for transformation at the next stage
 from requests import get, exceptions
 
 
+
+def get_max_plant_id(base_url: str) -> int:
+    """Returns greatest ID predicted by max_plants_on_display."""
+    response = get(base_url, timeout=10)
+    data = response.json()
+    if data and "plants_on_display" in data:
+        return data["plants_on_display"]
+    raise ValueError(f"Failed to fetch status information. Status code: {response.status_code}")
+
+
+
 def extract_plant_batch() -> list[dict]:
     """Returns list of dictionaries for all successful plant get requests """
     base_url = "https://data-eng-plants-api.herokuapp.com/"
     plant_data_list = []
+    max_plant_id = get_max_plant_id(base_url)
+    print(f"Data for {max_plant_id} plants is available...")
+    max_plant_id += max_plant_id // 10  # Adds 10% leeway to account for missing plants
 
-    for plant_id in range(1, 51):
+    for plant_id in range(1, max_plant_id + 1):
         try:
             plant_data = get_plant_data(base_url, plant_id)
             plant_data_list.append(plant_data)
@@ -24,7 +38,7 @@ def extract_plant_batch() -> list[dict]:
 def get_plant_data(base_url: str, plant_id: int) -> dict:
     """
     Returns data for a specific plant based on its ID number.
-    
+
     Raises:
         ValueError: If the data for the plant cannot be fetched.
     """
@@ -47,3 +61,4 @@ def get_plant_data(base_url: str, plant_id: int) -> dict:
 
 if __name__ == "__main__":
     main_data = extract_plant_batch()
+    print(main_data)

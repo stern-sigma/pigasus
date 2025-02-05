@@ -4,3 +4,5 @@
 **/*venv*
 **/terraform*
 **/.terraform**
+**/.coverage
+**/__pycache__**

@@ -46,3 +46,27 @@ resource "aws_iam_role_policy" "pipeline_lambda" {
   role = aws_iam_role.pipeline_lambda.id
   policy = data.aws_iam_policy_document.pipeline_lambda_permissions.json
 }
+
+resource "aws_security_group" "pipeline_lambda_security_group" {
+  name = "pigasus-pipeline-lambda"
+
+  dynamic "ingress" {
+    for_each = var.pipeline_lambda_security_group_ports
+
+    content {
+      from_port = ingress.value
+      to_port = ingress.value 
+      protocol = "tcp"
+    }
+  }
+
+  dynamic "egress" {
+    for_each = var.pipeline_lambda_security_group_ports
+
+    content {
+      from_port = egress.value 
+      to_port = egress.value 
+      protocol = "tcp"
+    }
+  }
+}

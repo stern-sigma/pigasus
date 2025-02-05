@@ -67,3 +67,29 @@ def clean_scientific_name(data_frame):
             x, list) else (x if isinstance(x, str) else None)
     )
     return data_frame
+
+def clean_image_data(data_frame):
+    """Returns the images column into separate columns."""
+    df = data_frame
+    if "images" not in df.columns:
+        raise KeyError("scientific_name was not found!")
+
+    df['image_license'] = df['images'].apply(
+        lambda x: x.get('license') if isinstance(x, dict) else None)
+    df['image_license_name'] = df['images'].apply(
+        lambda x: x.get('license_name') if isinstance(x, dict) else None)
+    df['image_license_url'] = df['images'].apply(
+        lambda x: x.get('license_url') if isinstance(x, dict) else None)
+    df['image_original_url'] = df['images'].apply(
+        lambda x: x.get('original_url') if isinstance(x, dict) else None)
+
+    df = df.drop(columns=['images'])
+    df = df[df['image_original_url'].notna()]
+    df = df[df['image_license'].notna()]
+    df = df[df['image_license_name'].notna()]
+    df = df[df['image_license_url'].notna()]
+
+    df['image_original_url'] = df['image_original_url'].apply(
+        lambda x: x if x.startswith('https://') else None)
+
+    return df

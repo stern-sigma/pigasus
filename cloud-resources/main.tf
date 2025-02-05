@@ -177,4 +177,17 @@ resource "aws_iam_role_policy" "pipeline_scheduler" {
   policy = data.aws_iam_policy_document.pipeline_scheduler_permissions.json
 }
 
+resource "aws_scheduler_schedule" "pipeline_schedule" {
+  name = "pigasus-pipeline"
 
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+schedule_expression = "cron(* * ? * * *)"
+
+  target {
+    arn = aws_lambda_function.pipeline.arn 
+    role_arn = aws_iam_role.pipeline_scheduler.arn
+  }
+}

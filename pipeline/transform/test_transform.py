@@ -1,12 +1,12 @@
 """This script tests for the transform script."""
 import pytest
 import pandas as pd
-from transform import parse_botanist_data, parse_origin_location
+from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe
 
 
 def test_get_botanist_data():
     """Tests for the right transformation of the botanist data."""
-    raw_data = [{
+    raw_data = convert_to_dataframe([{
         "botanist": {
             "email": "gertrude.jekyll@lnhm.co.uk",
             "name": "Gertrude Jekyll",
@@ -37,7 +37,7 @@ def test_get_botanist_data():
         "recording_taken": "2025-02-04 15:33:05",
         "soil_moisture": 94.17996217913385,
         "temperature": 12.041279102130597
-    }]
+    }])
     expected_data = [{
         "botanist_email": "gertrude.jekyll@lnhm.co.uk",
         "botanist_name": "Gertrude Jekyll",
@@ -72,7 +72,7 @@ def test_get_botanist_data():
 
 def test_botanist_data_column_missing_for_one_plant():
     """ Tests when the 'botanist' field is missing entirely for one record (botanist key missing)"""
-    raw_data = [
+    raw_data = convert_to_dataframe([
         {'botanist': {'email': 'john.doe@example.com', 'name': 'John Doe', 'phone': '123456789'},
          'last_watered': '2025-02-01', 'name': 'Plant 1', 'origin_location': 'Location 1', 'plant_id': 1,
          'recording_taken': '2025-02-01', 'soil_moisture': 0.3, 'temperature': 22},
@@ -81,7 +81,7 @@ def test_botanist_data_column_missing_for_one_plant():
         {'botanist': {'email': 'jane.doe@example.com', 'name': 'Jane Doe', 'phone': '987654321'},
          'last_watered': '2025-02-03', 'name': 'Plant 3', 'origin_location': 'Location 3', 'plant_id': 3,
          'recording_taken': '2025-02-03', 'soil_moisture': 0.5, 'temperature': 23}
-    ]
+    ])
 
     expected_result = pd.DataFrame({
         'botanist_email': ['john.doe@example.com', None, 'jane.doe@example.com'],
@@ -102,7 +102,7 @@ def test_botanist_data_column_missing_for_one_plant():
 
 def test_parse_origin_location_valid_data():
 
-    raw_data = [
+    raw_data = convert_to_dataframe([
         {
             "botanist": {
                 "email": "gertrude.jekyll@lnhm.co.uk",
@@ -123,7 +123,7 @@ def test_parse_origin_location_valid_data():
             "soil_moisture": 94.17996217913385,
             "temperature": 12.041279102130597
         }
-    ]
+    ])
 
     df = parse_origin_location(raw_data)
 
@@ -134,7 +134,7 @@ def test_parse_origin_location_valid_data():
 
 def test_parse_origin_location_values():
 
-    raw_data = [
+    raw_data = convert_to_dataframe([
         {
             "origin_location": [
                 "33.95015",
@@ -144,7 +144,7 @@ def test_parse_origin_location_values():
                 "America/Los_Angeles"
             ]
         }
-    ]
+    ])
 
     df = parse_origin_location(raw_data)
 
@@ -154,6 +154,12 @@ def test_parse_origin_location_values():
 
 def test_parse_origin_location_missing_key():
 
-    raw_data_invalid = [{"some_other_key": "value"}]
+    raw_data_invalid = convert_to_dataframe([{"some_other_key": "value"}])
     with pytest.raises(KeyError, match="Botanist was not found!"):
         parse_origin_location(raw_data_invalid)
+
+def test_convert_to_dataframe_checks_valid_type():
+    sample = ""
+
+    with pytest.raises(TypeError):
+        convert_to_dataframe(sample)

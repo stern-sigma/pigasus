@@ -6,9 +6,15 @@ def main():
     """Runs main function for the script."""
     ...  # pylint: disable = unnecessary-ellipsis
 
-def parse_botanist_data(raw_data:list[dict]):
+def convert_to_dataframe(raw_data:list[dict]):
+    if not isinstance(raw_data, list):
+        raise TypeError("Wrong format!")
+    
+    return pd.DataFrame(raw_data)
+
+def parse_botanist_data(data_frame):
     """Returns the botanist data into separated columns in a DataFrame."""
-    df = pd.DataFrame(raw_data)
+    df = data_frame
 
     if "botanist" not in df.columns:
         raise KeyError("Botanist was not found!")
@@ -41,9 +47,9 @@ def parse_botanist_data(raw_data:list[dict]):
     # pylint: disable=unsubscriptable-object
     return df
 
-def parse_origin_location(raw_data:list[dict]):
+def parse_origin_location(data_frame):
     """Returns the origin location parsed into three columns"""
-    df = pd.DataFrame(raw_data)
+    df = data_frame
 
     if "origin_location" not in df.columns:
         raise KeyError("Botanist was not found!")
@@ -55,7 +61,8 @@ def parse_origin_location(raw_data:list[dict]):
 
     return df
 
-
+def clean_scientific():
+    ...
 
 if __name__ == "__main__":
     main()

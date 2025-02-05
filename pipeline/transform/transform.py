@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def main():
-    """Runs main function for the script."""
+    """This Runs main function for the script."""
     ...  # pylint: disable = unnecessary-ellipsis
 
 def parse_botanist_data(raw_data:list[dict]):

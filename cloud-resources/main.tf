@@ -27,11 +27,21 @@ data "aws_iam_policy_document" "pipeline_lambda_permissions" {
     
     actions = [
       "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "logs:PutLogEvents",
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeSubnets",
+      "ec2:DeleteNetworkInterface",
+      "ec2:AssignPrivateIpAddresses",
+      "ec2:UnassignPrivateIpAddresses",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeVpcs",
+      "ec2:getSecrutiyGroupForVpc"
     ]
 
     resources = [
-      "*"
+      "*",
     ]
   }
 }
@@ -79,7 +89,8 @@ resource "aws_lambda_function" "pipeline" {
   architectures = ["arm64"]
 
   package_type = "Image"
-  image_uri = "${aws_ecr_repository.pipeline_ecr.repository_url}:latest"
+  image_uri = aws_ecr_repository.pipeline_ecr.repository_url}
+  image_tag = "latest"
 
   environment {
     variables = {

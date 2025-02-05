@@ -1,1 +1,0 @@
-pytest --cov=transform --cov-report=term-missing

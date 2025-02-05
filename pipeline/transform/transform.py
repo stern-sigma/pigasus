@@ -1,6 +1,6 @@
 """This script will transform the data into a usable format for the DB."""
 import pandas as pd
-
+import numpy as np
 def convert_to_dataframe(raw_data:list[dict]):
     """Creates dataframe from data."""
     if not isinstance(raw_data, list):
@@ -67,3 +67,27 @@ def clean_scientific_name(data_frame):
             x, list) else (x if isinstance(x, str) else None)
     )
     return data_frame
+
+def clean_image_data(data_frame):
+    """Returns the images column into separate columns."""
+    df = data_frame
+    if "images" not in df.columns:
+        raise KeyError("images was not found!")
+
+    df['image_license'] = df['images'].apply(lambda x: x.get(
+        'license') if isinstance(x, dict) and x.get('license') is not None else np.nan)
+    df['image_license_name'] = df['images'].apply(lambda x: x.get(
+        'license_name') if isinstance(x, dict) and x.get('license_name') is not None else np.nan)
+    df['image_license_url'] = df['images'].apply(lambda x: x.get(
+        'license_url') if isinstance(x, dict) and x.get('license_url') is not None else np.nan)
+    df['image_original_url'] = df['images'].apply(lambda x: x.get(
+        'original_url') if isinstance(x, dict) and x.get('original_url') is not None else np.nan)
+
+    # Drop the original 'images' column
+    df = df.drop(columns=['images'])
+
+    # Ensure that image_original_url starts with 'https://' if it's not NaN
+    df['image_original_url'] = df['image_original_url'].apply(
+        lambda x: x if isinstance(x, str) and x.startswith('https://') else np.nan)
+
+    return df

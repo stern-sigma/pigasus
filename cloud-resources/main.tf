@@ -127,7 +127,7 @@ resource "aws_lambda_function" "pipeline" {
   }
 }
 
-resource "aws_iam_policy_document" "scheduler_assume" {
+data "aws_iam_policy_document" "scheduler_assume" {
   statement {
     effect = "Allow"
 
@@ -140,18 +140,29 @@ resource "aws_iam_policy_document" "scheduler_assume" {
   }
 }
 
-resource "aws_iam_policy_document" "pipeline_scheduler_permissions" {
+data "aws_iam_policy_document" "pipeline_scheduler_permissions" {
   statement {
     effect = "Allow"
+
+    actions = [
+      "lambda:InvokeFunction"
+    ]
+
+    resources = [
+      "*"
+    ]
   }
+}
 
-  actions = [
-    "lambda:InvokeFunction"
-  ]
+resource "aws_iam_role" "pipeline_scheduler" {
+  name = "pigasus-pipeline-scheduler"
+  assume_role_policy = data.aws_iam_policy_document.scheduler_assume.json 
+}
 
-  resources = [
-    "*"
-  ]
+resource "aws_iam_role_policy" "pipeline_scheduler" {
+  name = "pigasus-pipeline-scheduler"
+  role = aws_iam_role.pipeline_scheduler.id
+  policy = data.aws_iam_policy_document.pipeline_scheduler_permissions.json
 }
 
 

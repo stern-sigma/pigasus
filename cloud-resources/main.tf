@@ -126,3 +126,18 @@ resource "aws_lambda_function" "pipeline" {
     security_group_ids = [aws_security_group.pipeline_lambda_security_group.id]
   }
 }
+
+resource "aws_iam_policy_document" "scheduler_assume" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+

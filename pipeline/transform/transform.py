@@ -1,12 +1,8 @@
 """This script will transform the data into a usable format for the DB."""
 import pandas as pd
 
-
-def main():
-    """Runs main function for the script."""
-    ...  # pylint: disable = unnecessary-ellipsis
-
 def convert_to_dataframe(raw_data:list[dict]):
+    """Creates dataframe from data."""
     if not isinstance(raw_data, list):
         raise TypeError("Wrong format!")
     
@@ -71,6 +67,3 @@ def clean_scientific_name(data_frame):
             x, list) else (x if isinstance(x, str) else None)
     )
     return data_frame
-
-if __name__ == "__main__":
-    main()

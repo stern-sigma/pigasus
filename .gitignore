@@ -6,3 +6,7 @@
 **/.terraform**
 **/.coverage
 **/__pycache__**
+*.pyc
+pytest_cov.sh
+.venv
+.pytest_cache

@@ -96,7 +96,7 @@ def format_watered_column(data_frame):
     df = data_frame
 
     if "last_watered" not in df.columns:
-        raise KeyError("last_watered was not found!")
+        raise KeyError("last_watered column was not found!")
     
 
     df['last_watered'] = pd.to_datetime(df['last_watered'], errors='coerce')

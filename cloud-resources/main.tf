@@ -2,10 +2,29 @@ data "aws_vpc" "c15-vpc" {
   id = var.AWS_VPC_ID
 }
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  account_id = data.aws_caller_identity.current.account_id
+}
+
 resource "aws_ecr_repository" "pipeline_ecr" {
   name = "pigasus-pipeline"
   image_tag_mutability = "MUTABLE"
   force_delete = true
+}
+
+resource "null_resource" "docker_build_and_push" {
+  provisioner "local-exec" {
+    command = <<EOT
+      aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${local.account_id}.dkr.ecr.eu-west-2.amazonaws.com
+      docker build --platform linux/arm64 --provenance false -t pigasus-pipeline .
+      docker tag pigasus-pipeline:latest ${aws_ecr_repository.pipeline_ecr.repository_url}:latest
+      docker push ${aws_ecr_repository.pipeline_ecr.repository_url}:latest    
+    EOT
+  }
+
+  depends_on = [aws_ecr_repository.pipeline_ecr]
 }
 
 data "aws_iam_policy_document" "lambda_assume" {
@@ -89,8 +108,7 @@ resource "aws_lambda_function" "pipeline" {
   architectures = ["arm64"]
 
   package_type = "Image"
-  image_uri = aws_ecr_repository.pipeline_ecr.repository_url
-  image_tag = "latest"
+  image_uri = "${aws_ecr_repository.pipeline_ecr.repository_url}:latest"
 
   environment {
     variables = {

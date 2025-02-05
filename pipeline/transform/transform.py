@@ -92,6 +92,7 @@ def clean_image_data(data_frame):
     return df
 
 def format_watered_column(data_frame):
+    """Returns the last_watered column into a datetime object."""
     df = data_frame
 
     if "last_watered" not in df.columns:

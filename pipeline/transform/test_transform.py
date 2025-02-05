@@ -1,6 +1,7 @@
 """This script tests for the transform script."""
 import pytest
 import pandas as pd
+import numpy as np
 from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data
 
 
@@ -232,34 +233,6 @@ def test_columns_exist():
     assert 'image_license_name' in cleaned_df.columns
     assert 'image_license_url' in cleaned_df.columns
     assert 'image_original_url' in cleaned_df.columns
-
-
-def test_invalid_data_is_dropped():
-    """Test that rows with invalid data are dropped."""
-    data = [{
-        "images": {
-            "license": 45,
-            "license_name": "Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)",
-            "license_url": "https://creativecommons.org/licenses/by-sa/3.0/deed.en",
-            "original_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/og/2560px-Epipremnum_aureum_31082012.jpg"
-        },
-        "name": "Epipremnum Aureum"
-    }, {
-        "images": {
-            "license": None,
-            "license_name": None,
-            "license_url": None,
-            "original_url": None
-        },
-        "name": "Invalid Plant"
-    }]
-
-    df = pd.DataFrame(data)
-    cleaned_df = clean_image_data(df)
-
-    # Only one valid row should remain
-    assert len(cleaned_df) == 1
-
 
 def test_valid_url_format():
     """Test that 'image_original_url' contains a valid URL."""

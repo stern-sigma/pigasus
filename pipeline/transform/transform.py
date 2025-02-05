@@ -1,6 +1,6 @@
 """This script will transform the data into a usable format for the DB."""
 import pandas as pd
-
+import numpy as np
 def convert_to_dataframe(raw_data:list[dict]):
     """Creates dataframe from data."""
     if not isinstance(raw_data, list):
@@ -60,7 +60,7 @@ def parse_origin_location(data_frame):
 
 def clean_scientific_name(data_frame):
     """Cleans the scientific_name column."""
-    if "images" not in data_frame.columns:
+    if "scientific_name" not in data_frame.columns:
         raise KeyError("scientific_name was not found!")
     data_frame['scientific_name'] = data_frame['scientific_name'].apply(
         lambda x: ', '.join([str(item) for item in x]) if isinstance(
@@ -72,24 +72,22 @@ def clean_image_data(data_frame):
     """Returns the images column into separate columns."""
     df = data_frame
     if "images" not in df.columns:
-        raise KeyError("scientific_name was not found!")
+        raise KeyError("images was not found!")
 
-    df['image_license'] = df['images'].apply(
-        lambda x: x.get('license') if isinstance(x, dict) else None)
-    df['image_license_name'] = df['images'].apply(
-        lambda x: x.get('license_name') if isinstance(x, dict) else None)
-    df['image_license_url'] = df['images'].apply(
-        lambda x: x.get('license_url') if isinstance(x, dict) else None)
-    df['image_original_url'] = df['images'].apply(
-        lambda x: x.get('original_url') if isinstance(x, dict) else None)
+    df['image_license'] = df['images'].apply(lambda x: x.get(
+        'license') if isinstance(x, dict) and x.get('license') is not None else np.nan)
+    df['image_license_name'] = df['images'].apply(lambda x: x.get(
+        'license_name') if isinstance(x, dict) and x.get('license_name') is not None else np.nan)
+    df['image_license_url'] = df['images'].apply(lambda x: x.get(
+        'license_url') if isinstance(x, dict) and x.get('license_url') is not None else np.nan)
+    df['image_original_url'] = df['images'].apply(lambda x: x.get(
+        'original_url') if isinstance(x, dict) and x.get('original_url') is not None else np.nan)
 
+    # Drop the original 'images' column
     df = df.drop(columns=['images'])
-    df = df[df['image_original_url'].notna()]
-    df = df[df['image_license'].notna()]
-    df = df[df['image_license_name'].notna()]
-    df = df[df['image_license_url'].notna()]
 
+    # Ensure that image_original_url starts with 'https://' if it's not NaN
     df['image_original_url'] = df['image_original_url'].apply(
-        lambda x: x if x.startswith('https://') else None)
+        lambda x: x if isinstance(x, str) and x.startswith('https://') else np.nan)
 
     return df

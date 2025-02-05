@@ -1,7 +1,7 @@
 """This script tests for the transform script."""
 import pytest
 import pandas as pd
-from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe
+from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name
 
 
 def test_get_botanist_data():
@@ -163,3 +163,51 @@ def test_convert_to_dataframe_checks_valid_type():
 
     with pytest.raises(TypeError):
         convert_to_dataframe(sample)
+
+
+def test_clean_scientific_with_lists():
+    """Test case where scientific_name contains a list of names."""
+    data = {'scientific_name': [['Sarracenia catesbaei'], [
+        'Wollemia nobilis'], ['Pereskia grandifolia']]}
+    df = pd.DataFrame(data)
+    result = clean_scientific_name(df)
+    expected = {'scientific_name': [
+        'Sarracenia catesbaei', 'Wollemia nobilis', 'Pereskia grandifolia']}
+    expected_df = pd.DataFrame(expected)
+    pd.testing.assert_frame_equal(result, expected_df)
+
+
+def test_clean_scientific_with_strings():
+    """Test case where scientific_name contains strings."""
+    data = {'scientific_name': ['Sarracenia catesbaei',
+                                'Wollemia nobilis', 'Pereskia grandifolia']}
+    df = pd.DataFrame(data)
+    result = clean_scientific_name(df)
+    expected = {'scientific_name': [
+        'Sarracenia catesbaei', 'Wollemia nobilis', 'Pereskia grandifolia']}
+    expected_df = pd.DataFrame(expected)
+    pd.testing.assert_frame_equal(result, expected_df)
+
+
+def test_clean_scientific_with_none_values():
+    """Test case where scientific_name contains None (null) values."""
+    data = {'scientific_name': [None, None, None]}
+    df = pd.DataFrame(data)
+    result = clean_scientific_name(df)
+    expected = {'scientific_name': [None, None, None]}
+    expected_df = pd.DataFrame(expected)
+    pd.testing.assert_frame_equal(result, expected_df)
+
+
+def test_clean_scientific_missing_column():
+    """Test case where scientific_name column is missing from the DataFrame."""
+    df = pd.DataFrame({'some_other_column': [1, 2, 3]})
+    with pytest.raises(KeyError):
+        clean_scientific_name(df)
+
+
+def test_parse_botanist_data_missing_column():
+    """Test case where scientific_name column is missing from the DataFrame."""
+    df = pd.DataFrame({'some_other_column': [1, 2, 3]})
+    with pytest.raises(KeyError):
+        parse_botanist_data(df)

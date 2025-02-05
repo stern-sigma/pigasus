@@ -126,3 +126,43 @@ resource "aws_lambda_function" "pipeline" {
     security_group_ids = [aws_security_group.pipeline_lambda_security_group.id]
   }
 }
+
+data "aws_iam_policy_document" "scheduler_assume" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+data "aws_iam_policy_document" "pipeline_scheduler_permissions" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "lambda:InvokeFunction"
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role" "pipeline_scheduler" {
+  name = "pigasus-pipeline-scheduler"
+  assume_role_policy = data.aws_iam_policy_document.scheduler_assume.json 
+}
+
+resource "aws_iam_role_policy" "pipeline_scheduler" {
+  name = "pigasus-pipeline-scheduler"
+  role = aws_iam_role.pipeline_scheduler.id
+  policy = data.aws_iam_policy_document.pipeline_scheduler_permissions.json
+}
+
+

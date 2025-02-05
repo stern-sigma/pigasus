@@ -33,10 +33,10 @@ jobs:
 
       - name: Run Pytest with Coverage Check
         run: |
-          if pytest --collect-only | grep -q "collected 0 items"; then
-            echo "No tests collected, skipping coverage check."
+          if python -m pytest --collect-only | grep -q "collected 0 items"; then
+          echo "No tests collected, skipping coverage check."
           else
-            pytest --cov=./ --cov-fail-under=80 --cov-omit="*test*"
+          python -m pytest --cov=./ --cov-config=.coveragerc --cov-fail-under=80
           fi
 
 

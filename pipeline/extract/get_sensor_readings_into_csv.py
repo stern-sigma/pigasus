@@ -78,7 +78,7 @@ def save_data_to_csv(data: list[dict], filename="plant_data.csv") -> None:
 
 
 
-def retrieve_plant_data(base_url: str, max_runtime: int = 30) -> list[dict]:
+def retrieve_plant_data(base_url: str, max_runtime: int = 60) -> list[dict]:
     """Returns 5 minutes worth of plant data."""
     try:
         max_id = get_max_plant_id(base_url)

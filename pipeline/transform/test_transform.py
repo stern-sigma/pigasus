@@ -2,7 +2,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data
+from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data, format_watered_column
 
 
 def test_get_botanist_data():
@@ -257,3 +257,34 @@ def test_clean_images_column_missing():
     df = pd.DataFrame({'some_other_column': [1, 2, 3]})
     with pytest.raises(KeyError):
         clean_image_data(df)
+
+
+def test_valid_datetime():
+    data_valid = [{
+        "last_watered": "Wed, 05 Feb 2025 14:04:23 GMT",
+        "name": "Begonia"
+    }]
+    df_valid = pd.DataFrame(data_valid)
+    formatted_df_valid = format_watered_column(df_valid)
+
+    print(formatted_df_valid["last_watered"])
+
+    assert isinstance(formatted_df_valid['last_watered'][0], pd.Timestamp)
+
+
+def test_clean_water_column_missing():
+    """Test case where scientific_name column is missing from the DataFrame."""
+    df = pd.DataFrame({'some_other_column': [1, 2, 3]})
+    with pytest.raises(KeyError):
+        format_watered_column(df)
+
+
+def test_datetime_with_timezone():
+    data_timezone = [{
+        "last_watered": "Mon, 02 Feb 2025 08:00:00 GMT",
+        "name": "Orchid"
+    }]
+    df_timezone = pd.DataFrame(data_timezone)
+    formatted_df_timezone = format_watered_column(df_timezone)
+    assert formatted_df_timezone['last_watered'][0] == pd.to_datetime(
+        "Mon, 02 Feb 2025 08:00:00 GMT")

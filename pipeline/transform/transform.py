@@ -73,7 +73,6 @@ def clean_image_data(data_frame):
     df = data_frame
     if "images" not in df.columns:
         raise KeyError("images was not found!")
-
     df['image_license'] = df['images'].apply(lambda x: x.get(
         'license') if isinstance(x, dict) and x.get('license') is not None else np.nan)
     df['image_license_name'] = df['images'].apply(lambda x: x.get(
@@ -91,3 +90,17 @@ def clean_image_data(data_frame):
         lambda x: x if isinstance(x, str) and x.startswith('https://') else np.nan)
 
     return df
+
+def format_watered_column(data_frame):
+    df = data_frame
+
+    if "last_watered" not in df.columns:
+        raise KeyError("last_watered was not found!")
+    
+
+    df['last_watered'] = pd.to_datetime(df['last_watered'], errors='coerce')
+    return df
+
+
+    
+

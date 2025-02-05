@@ -1,7 +1,7 @@
 """This script tests for the transform script."""
 import pytest
 import pandas as pd
-from transform import get_botanist_data
+from transform import parse_botanist_data, parse_origin_location
 
 
 def test_get_botanist_data():
@@ -65,7 +65,7 @@ def test_get_botanist_data():
 
     expected_df = pd.DataFrame(expected_data)
 
-    transformed_df = get_botanist_data(raw_data)
+    transformed_df = parse_botanist_data(raw_data)
 
     pd.testing.assert_frame_equal(transformed_df, expected_df)
 
@@ -96,7 +96,64 @@ def test_botanist_data_column_missing_for_one_plant():
         'temperature': [22, 21, 23]
     })
 
-    result = get_botanist_data(raw_data)
+    result = parse_botanist_data(raw_data)
     pd.testing.assert_frame_equal(result, expected_result)
 
 
+def test_parse_origin_location_valid_data():
+
+    raw_data = [
+        {
+            "botanist": {
+                "email": "gertrude.jekyll@lnhm.co.uk",
+                "name": "Gertrude Jekyll",
+                "phone": "001-481-273-3691x127"
+            },
+            "last_watered": "Tue, 04 Feb 2025 13:54:32 GMT",
+            "name": "Venus flytrap",
+            "origin_location": [
+                "33.95015",
+                "-118.03917",
+                "South Whittier",
+                "US",
+                "America/Los_Angeles"
+            ],
+            "plant_id": 1,
+            "recording_taken": "2025-02-04 15:33:05",
+            "soil_moisture": 94.17996217913385,
+            "temperature": 12.041279102130597
+        }
+    ]
+
+    df = parse_origin_location(raw_data)
+
+    assert "region" in df.columns
+    assert "country" in df.columns
+    assert "origin_location" not in df.columns
+
+
+def test_parse_origin_location_values():
+
+    raw_data = [
+        {
+            "origin_location": [
+                "33.95015",
+                "-118.03917",
+                "South Whittier",
+                "US",
+                "America/Los_Angeles"
+            ]
+        }
+    ]
+
+    df = parse_origin_location(raw_data)
+
+    assert df.loc[0, "region"] == "South Whittier"
+    assert df.loc[0, "country"] == "US"
+
+
+def test_parse_origin_location_missing_key():
+
+    raw_data_invalid = [{"some_other_key": "value"}]
+    with pytest.raises(KeyError, match="Botanist was not found!"):
+        parse_origin_location(raw_data_invalid)

@@ -6,7 +6,7 @@ def main():
     """Runs main function for the script."""
     ...  # pylint: disable = unnecessary-ellipsis
 
-def get_botanist_data(raw_data:list[dict]):
+def parse_botanist_data(raw_data:list[dict]):
     """Returns the botanist data into separated columns in a DataFrame."""
     df = pd.DataFrame(raw_data)
 
@@ -40,5 +40,22 @@ def get_botanist_data(raw_data:list[dict]):
     ]]
     # pylint: disable=unsubscriptable-object
     return df
+
+def parse_origin_location(raw_data:list[dict]):
+    """Returns the origin location parsed into three columns"""
+    df = pd.DataFrame(raw_data)
+
+    if "origin_location" not in df.columns:
+        raise KeyError("Botanist was not found!")
+    df["region"] = df["origin_location"].apply(
+        lambda x: x[2])  # Extract region
+    df["country"] = df["origin_location"].apply(lambda x: x[3])
+
+    df.drop(columns=["origin_location"], inplace=True)
+
+    return df
+
+
+
 if __name__ == "__main__":
     main()

@@ -1,0 +1,10 @@
+# Requirements for pigasus, update as needed....
+pytest
+pylint
+pytest-cov
+requests
+pymssql
+python-dotenv
+pandas
+pyarrow
+boto3

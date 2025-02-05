@@ -1,5 +1,6 @@
 """This script will fetch data from the API to be studied"""
 import json
+
 from time import time
 from requests import get
 
@@ -66,9 +67,6 @@ def retrieve_plant_data(base_url: str, max_runtime: int = 30) -> list[dict]:
         elapsed_time = time() - start_time
 
     return all_plants_data
-
-
-
 
 
 if __name__ == "__main__":

@@ -140,4 +140,18 @@ resource "aws_iam_policy_document" "scheduler_assume" {
   }
 }
 
+resource "aws_iam_policy_document" "pipeline_scheduler_permissions" {
+  statement {
+    effect = "Allow"
+  }
+
+  actions = [
+    "lambda:InvokeFunction"
+  ]
+
+  resources = [
+    "*"
+  ]
+}
+
 

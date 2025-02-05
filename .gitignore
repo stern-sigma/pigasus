@@ -4,3 +4,4 @@
 **/*venv*
 **/terraform*
 **/.terraform**
+**/.coverage

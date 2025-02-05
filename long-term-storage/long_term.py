@@ -3,7 +3,7 @@ in preparation for loading into the S3 bucket as parquet files."""
 
 # pylint: disable=unused-argument, no-name-in-module
 
-from os import environ
+from os import environ, remove
 from datetime import date
 import pandas as pd
 from pymssql import connect, Connection
@@ -79,6 +79,8 @@ def handler(event=None, context=None) -> None:
     formatted_data.to_parquet("/tmp/df.parquet")
 
     upload_to_bucket(s3, "/tmp/df.parquet", bucket_name)
+
+    remove("/tmp/df.parquet")
 
     delete_old_data(conn)
 

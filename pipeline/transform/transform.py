@@ -60,7 +60,7 @@ def parse_origin_location(data_frame):
 
 def clean_scientific_name(data_frame):
     """Cleans the scientific_name column."""
-    if "scientific_name" not in data_frame.columns:
+    if "images" not in data_frame.columns:
         raise KeyError("scientific_name was not found!")
     data_frame['scientific_name'] = data_frame['scientific_name'].apply(
         lambda x: ', '.join([str(item) for item in x]) if isinstance(

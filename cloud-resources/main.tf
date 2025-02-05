@@ -49,6 +49,7 @@ resource "aws_iam_role_policy" "pipeline_lambda" {
 
 resource "aws_security_group" "pipeline_lambda_security_group" {
   name = "pigasus-pipeline-lambda"
+  vpc_id = data.aws_vpc.c15-vpc.id
 
   dynamic "ingress" {
     for_each = var.pipeline_lambda_security_group_ports
@@ -68,5 +69,31 @@ resource "aws_security_group" "pipeline_lambda_security_group" {
       to_port = egress.value 
       protocol = "tcp"
     }
+  }
+}
+
+resource "aws_lambda_function" "pipeline" {
+  function_name = "pigasus-pipeline"
+  role = aws_iam_role.pipeline_lambda.arn 
+
+  architectures = ["arm64"]
+
+  package_type = "Image"
+  image_uri = "${aws_ecr_repository.pipeline_ecr.repository_url}:latest"
+
+  environment {
+    variables = {
+    DB_HOST = "${var.DB_HOST}",
+    DB_PORT = "${var.DB_PORT}",
+    DB_PASSWORD = "${var.DB_PASSWORD}",
+    DB_USER = "${var.DB_USER}",
+    DB_NAME = "${var.DB_NAME}",
+    SCHEMA_NAME = "${var.SCHEMA_NAME}"
+    }
+  }
+
+  vpc_config {
+    subnet_ids = var.public_subnet_ids
+    security_group_ids = [aws_security_group.pipeline_lambda_security_group.id]
   }
 }

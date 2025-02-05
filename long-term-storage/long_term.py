@@ -3,7 +3,7 @@ in preparation for loading into the S3 bucket as parquet files."""
 
 # pylint: disable=unused-argument, no-name-in-module
 
-from os import environ, remove
+from os import environ, remove, listdir
 from datetime import date
 import pandas as pd
 from pymssql import connect, Connection
@@ -14,10 +14,10 @@ from boto3 import client
 def get_connection() -> Connection:
     """Returns a connection object to connect to the database."""
     conn = connect(
-        server="host.docker.internal",
-        user="sa",
-        password="Password.1",
-        database="plants",
+        server=environ["DB_HOST"],
+        user=environ["DB_USER"],
+        password=environ["DB_PASSWORD"],
+        database=environ["DB_NAME"],
         as_dict=True
     )
     return conn
@@ -29,16 +29,22 @@ def get_old_data(conn: Connection) -> pd.DataFrame:
             SELECT * FROM alpha.reading
             WHERE DATEDIFF(HOUR, at, CURRENT_TIMESTAMP) > 24"""
 
-    with conn.cursor() as cur:
-        cur.execute(query)
-        rows = cur.fetchall()
+    cur = conn.cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+    if rows == []:
+        cur.close()
+        raise ValueError("No data older than 24 hours")
     old_data_df = pd.DataFrame(rows)
-
+    cur.close()
     return old_data_df
 
 
 def format_dataframe(old_data: pd.DataFrame) -> pd.DataFrame:
     """Returns a dataframe formatted for conversion to parquet."""
+    if any(key not in old_data for key in ["at", "last_watered", "soil_moisture", "temperature"]):
+        raise KeyError("Database is missing keys!")
+
     old_data["at"] = old_data['at'].dt.strftime("%Y-%m-%d %H:%M:%S")
     old_data["last_watered"] = old_data["last_watered"].dt.strftime(
         "%Y-%m-%d %H:%M:%S")
@@ -71,14 +77,13 @@ def handler(event=None, context=None) -> None:
     get data older than 24 hours and save to parquet."""
 
     conn = get_connection()
-
     data = get_old_data(conn)
-
     formatted_data = format_dataframe(data)
-
     formatted_data.to_parquet("/tmp/df.parquet")
 
-    upload_to_bucket(s3, "/tmp/df.parquet", bucket_name)
+    s3 = client("s3", aws_access_key_id=environ["AWS_ACCESS_KEY"],
+                aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"])
+    upload_to_bucket(s3, "/tmp/df.parquet", environ["BUCKET_NAME"])
 
     remove("/tmp/df.parquet")
 

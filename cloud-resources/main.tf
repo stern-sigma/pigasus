@@ -89,7 +89,7 @@ resource "aws_lambda_function" "pipeline" {
   architectures = ["arm64"]
 
   package_type = "Image"
-  image_uri = aws_ecr_repository.pipeline_ecr.repository_url}
+  image_uri = aws_ecr_repository.pipeline_ecr.repository_url
   image_tag = "latest"
 
   environment {

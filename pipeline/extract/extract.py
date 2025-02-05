@@ -61,3 +61,4 @@ def get_plant_data(base_url: str, plant_id: int) -> dict:
 
 if __name__ == "__main__":
     main_data = extract_plant_batch()
+    print(main_data)

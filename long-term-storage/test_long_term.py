@@ -1,7 +1,8 @@
 """Tests for long term storage script."""
+
 import os
-from datetime import datetime
-from long_term import get_old_data, format_dataframe, upload_to_bucket, get_connection
+from datetime import datetime, date
+from long_term import get_old_data, format_dataframe, upload_to_bucket, get_connection, handler
 from unittest.mock import patch, MagicMock
 import pytest
 import pandas as pd
@@ -75,11 +76,14 @@ def test_format_dataframe_expected_output(old_data):
         format_dataframe(new_old_df)
 
 
+@patch("datetime.date")
 @moto.mock_aws
-def test_upload_bucket(tmp_path):
+def test_upload_bucket(mock_date, tmp_path):
     """Tests that files are uploaded to the bucket."""
     temp_file = tmp_path/"data.parquet"
     temp_file.write_text("fake_data", encoding="utf-8")
+
+    mock_date.return_value = date(2025, 2, 6)
 
     conn = boto3.resource("s3", region_name="eu-west-2")
     conn.create_bucket(Bucket="plant", CreateBucketConfiguration={
@@ -90,7 +94,7 @@ def test_upload_bucket(tmp_path):
 
     uploaded_objects = [o["Key"]
                         for o in s3.list_objects(Bucket="plant")["Contents"]]
-    assert "plant_data_2025-02-05.parquet" in uploaded_objects
+    assert "plant_data_2025-02-06.parquet" in uploaded_objects
 
 
 @patch.dict(os.environ, {"DB_HOST": "host", "DB_USER": "user", "DB_PASSWORD": "password", "DB_NAME": "namee"})
@@ -114,3 +118,26 @@ def test_get_old_data_raises_error(mock_connection, old_data):
 
     with pytest.raises(ValueError):
         get_old_data(mock_connection)
+
+
+@patch.dict(os.environ, {"DB_HOST": "host", "DB_USER": "user", "DB_PASSWORD": "password", "DB_NAME": "namee", "AWS_ACCESS_KEY": "key", "AWS_SECRET_ACCESS_KEY": "key2", "BUCKET_NAME": "bucket"})
+@patch("long_term.get_connection")
+@patch("long_term.get_old_data")
+@patch("long_term.format_dataframe")
+@patch("long_term.client")
+@patch("long_term.upload_to_bucket")
+@patch("long_term.remove")
+@patch("long_term.delete_old_data")
+def test_handler_finish(mock_delete, mock_remove, mock_upload_to_bucket, mock_client, mock_format, mock_get_old, mock_get_connection, old_data):
+    """Tests that handler reaches finish."""
+    mock_conn = MagicMock()
+    mock_get_connection.return_value = mock_conn
+    mock_get_old.return_value = old_data
+    mock_formatted_data = MagicMock()
+    mock_format.return_value = mock_formatted_data
+    mock_formatted_data.to_parquet = MagicMock()
+
+    mock_s3_client = MagicMock()
+    mock_client.return_value = mock_s3_client
+
+    assert handler() == "Finished"

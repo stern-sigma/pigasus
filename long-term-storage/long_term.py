@@ -3,7 +3,8 @@ in preparation for loading into the S3 bucket as parquet files."""
 
 # pylint: disable=unused-argument, no-name-in-module
 
-from os import environ, remove, listdir
+import logging
+from os import environ, remove
 from datetime import date
 import pandas as pd
 from pymssql import connect, Connection
@@ -23,6 +24,12 @@ def get_connection() -> Connection:
     return conn
 
 
+def configure_logs() -> None:
+    """Configures logger."""
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s - %(levelname)s - %(message)s')
+
+
 def get_old_data(conn: Connection) -> pd.DataFrame:
     """Returns old data from the database as a dataframe."""
     query = """USE plants;
@@ -34,7 +41,10 @@ def get_old_data(conn: Connection) -> pd.DataFrame:
     rows = cur.fetchall()
     if rows == []:
         cur.close()
-        raise ValueError("No data older than 24 hours")
+        logging.error("No present data older than 24 hours in the database.")
+        raise ValueError(
+            "No present data older than 24 hours in the database.")
+
     old_data_df = pd.DataFrame(rows)
     cur.close()
     return old_data_df
@@ -43,6 +53,7 @@ def get_old_data(conn: Connection) -> pd.DataFrame:
 def format_dataframe(old_data: pd.DataFrame) -> pd.DataFrame:
     """Returns a dataframe formatted for conversion to parquet."""
     if any(key not in old_data for key in ["at", "last_watered", "soil_moisture", "temperature"]):
+        logging.info("Database is missing keys!")
         raise KeyError("Database is missing keys!")
 
     old_data["at"] = old_data['at'].dt.strftime("%Y-%m-%d %H:%M:%S")
@@ -64,20 +75,25 @@ def delete_old_data(conn: Connection) -> None:
     with conn.cursor() as cur:
         cur.execute(query)
         conn.commit()
+    logging.info("Expired data deleted from plant database.")
 
 
 def upload_to_bucket(s3_client: client, filepath: str, bucket=str) -> None:
     """Uploads parquet file to S3 bucket."""
     name = f"plant_data_{date.today()}.parquet"
     s3_client.upload_file(filepath, bucket, name)
+    logging.info("Plant data uploaded to S3 bucket.")
 
 
 def handler(event=None, context=None) -> None:
     """Lambda handler to connect to the database, 
     get data older than 24 hours and save to parquet."""
 
+    configure_logs()
+
     conn = get_connection()
     data = get_old_data(conn)
+    logging.info("Expired data retrieved from database.")
     formatted_data = format_dataframe(data)
     formatted_data.to_parquet("/tmp/df.parquet")
 
@@ -89,6 +105,7 @@ def handler(event=None, context=None) -> None:
 
     delete_old_data(conn)
 
+    logging.info("Finished!")
     return "Finished"
 
 

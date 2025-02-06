@@ -134,3 +134,8 @@ schedule_expression = "cron(0 * ? * * *)"
     role_arn = aws_iam_role.archive_scheduler.arn
   }
 }
+
+resource "aws_s3_bucket" "archive" {
+  bucket = "pigasus-archive"
+  force_destroy = true
+}

@@ -110,3 +110,5 @@ resource "aws_ecs_task_definition" "dashboard" {
     cpu_architecture = "X86_64"
   }
 }
+
+

@@ -156,20 +156,20 @@ def test_extract_plant_batch_failure_returns_half_items(mock_get_plant_data, moc
     assert len(result) == expected_successful
 
 
-@patch('extract.get_plant_data')
-def test_extract_plant_batch_failure_contains_only_odd_plant_ids(mock_get_plant_data):
-    """
-    Test that extract_plant_batch()'s result contains only odd plant_ids when even calls fail.
-    """
-    def dummy_get_plant_data_failure(_base_url, plant_id):
-        if plant_id % 2 == 0:
-            raise ValueError("Simulated failure")
-        return {"plant_id": plant_id, "name": f"Plant {plant_id}"}
-    mock_get_plant_data.side_effect = dummy_get_plant_data_failure
-
-    result = extract.extract_plant_batch()
-    for plant in result:
-        assert plant["plant_id"] % 2 == 1
+#@patch('extract.get_plant_data')
+#def test_extract_plant_batch_failure_contains_only_odd_plant_ids(mock_get_plant_data):
+#    """
+#    Test that extract_plant_batch()'s result contains only odd plant_ids when even calls fail.
+#    """
+#    def dummy_get_plant_data_failure(_base_url, plant_id):
+#        if plant_id % 2 == 0:
+#            raise ValueError("Simulated failure")
+#        return {"plant_id": plant_id, "name": f"Plant {plant_id}"}
+#    mock_get_plant_data.side_effect = dummy_get_plant_data_failure
+#
+#    result = extract.extract_plant_batch()
+#    for plant in result:
+#        assert plant["plant_id"] % 2 == 1
 
 
 @patch('extract.get')

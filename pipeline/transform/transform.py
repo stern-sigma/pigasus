@@ -10,7 +10,7 @@ def convert_to_dataframe(raw_data:list[dict]):
     return pd.DataFrame(raw_data)
 
 
-def parse_botanist_data(df):
+def parse_botanist_data(df:pd.DataFrame) -> pd.DataFrame:
     """Returns botanist data into separate columns, ensuring NaN for missing values without dropping rows."""
 
     if "botanist" not in df.columns:
@@ -26,7 +26,7 @@ def parse_botanist_data(df):
     return df
 
 
-def parse_origin_location(df):
+def parse_origin_location(df:pd.DataFrame) -> pd.DataFrame:
     """Returns the origin_location column parsed into separate region and country columns, handling missing values."""
     if "origin_location" not in df.columns:
         df["origin_location"] = np.nan
@@ -41,7 +41,7 @@ def parse_origin_location(df):
 
     return df
 
-def clean_scientific_name(df):
+def clean_scientific_name(df:pd.DataFrame) -> pd.DataFrame:
     """Returns the scientific_name column cleaned - transformed into a string and ensured that it is consistent."""
     if "scientific_name" not in df.columns:
         df['scientific_name'] = np.nan
@@ -57,7 +57,7 @@ def clean_scientific_name(df):
     return df
 
 
-def clean_image_data(df):
+def clean_image_data(df:pd.DataFrame) -> pd.DataFrame:
     """Returns the images column into separate columns, creating them even if 'images' does not exist."""
 
     if "images" not in df.columns:
@@ -77,7 +77,7 @@ def clean_image_data(df):
 
 
 
-def format_watered_column(df):
+def format_watered_column(df:pd.DataFrame) -> pd.DataFrame:
     """Converts the last_watered column to a datetime object with second precision."""
     if "last_watered" not in df.columns:
         df["last_watered"] = np.nan
@@ -91,7 +91,7 @@ def format_watered_column(df):
             df["last_watered"].notna(), np.nan)
     return df
 
-def format_recording_taken(df):
+def format_recording_taken(df:pd.DataFrame) -> pd.DataFrame:
     """Converts recording_taken to a datetime object or NaN if invalid or missing."""
     if "recording_taken" not in df.columns:
         df["recording_taken"] = np.nan
@@ -103,7 +103,7 @@ def format_recording_taken(df):
     return df
 
 
-def capitalise_plant_name(df):
+def capitalise_plant_name(df:pd.DataFrame) -> pd.DataFrame:
     """Returns each word in the plant name capitalised.
     Removes non-alphabetic characters (except spaces), and handles leading/trailing spaces."""
 
@@ -116,7 +116,7 @@ def capitalise_plant_name(df):
     return df
 
 
-def validate_soil_moisture(df):
+def validate_soil_moisture(df:pd.DataFrame) -> pd.DataFrame:
     """Returns the soil_moisture column. Checks it exists, makes negative values absolute, and handles invalid or missing values."""
     if "soil_moisture" not in df.columns:
         df["soil_moisture"] = np.nan
@@ -126,7 +126,7 @@ def validate_soil_moisture(df):
     return df
 
 
-def process_temperature_column(df):
+def process_temperature_column(df:pd.DataFrame) -> pd.DataFrame:
     """Returrs the processed temperature column."""
     if 'temperature' not in df.columns:
         df['temperature'] = np.nan

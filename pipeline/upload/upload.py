@@ -1,3 +1,7 @@
+"""Functions to upload relevant data from plant data batch 
+to short term SQL Server Database"""
+# pylint: disable=no-member
+
 import os
 import pymssql
 import pandas as pd
@@ -9,7 +13,7 @@ def get_connection():
     Returns a connection object to connect to the database,
     using all the required environment variables.
     """
-    conn = pymssql.connect(  # pylint: disable=no-member
+    conn = pymssql.connect(
         server=os.environ["DB_HOST"],
         port=int(os.environ["DB_PORT"]),
         user=os.environ["DB_USER"],
@@ -28,7 +32,7 @@ def get_existing_plant_ids(conn: pymssql.Connection, plant_ids: list) -> set:
 
     placeholders = ", ".join(["%s"] * len(plant_ids))
     query = f"SELECT plant_id FROM alpha.plant WHERE plant_id IN ({placeholders})"
-    
+
     with conn.cursor() as cursor:
         cursor.execute(query, tuple(plant_ids))
         rows = cursor.fetchall()
@@ -169,7 +173,7 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None
 if __name__ == '__main__':
     load_dotenv()
 
-    conn = get_connection()
+    connection = get_connection()
 
     new_plant_data = pd.DataFrame([{
         "botanist_email": "eliza.andrews@lnhm.co.uk",
@@ -193,5 +197,5 @@ if __name__ == '__main__':
     }])
 
     print(new_plant_data)
-    upload_new_plants_with_location(conn, new_plant_data)
-    conn.close()
+    upload_new_plants_with_location(connection, new_plant_data)
+    connection.close()

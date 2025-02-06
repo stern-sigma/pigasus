@@ -1,15 +1,17 @@
+"""Functions to take transformed data and load relevant information
+into the short-term database"""
+
+import os
 import pymssql
 import pandas as pd
 from dotenv import load_dotenv
-import os
-from pymssql import Connection
 
-def get_connection() -> Connection:
+def get_connection():
     """
     Returns a connection object to connect to the database,
     using all the required environment variables.
     """
-    conn = pymssql.connect(
+    conn = pymssql.connect(  # pylint: disable=no-member
         server=os.environ["DB_HOST"],
         port=int(os.environ["DB_PORT"]),
         user=os.environ["DB_USER"],
@@ -24,7 +26,7 @@ def get_existing_plant_ids(cursor, plant_ids: list) -> set:
     """
     if not plant_ids:
         return set()
-    
+
     placeholders = ", ".join(["%s"] * len(plant_ids))
     query = f"SELECT plant_id FROM alpha.plant WHERE plant_id IN ({placeholders})"
     cursor.execute(query, tuple(plant_ids))
@@ -49,8 +51,7 @@ def upload_new_plants_with_location(data: pd.DataFrame) -> None:
         print("No new plants to upload.")
         conn.close()
         return
-    else:
-        print(f"New plant IDs to upload: {new_plants_data['plant_id'].tolist()}")
+    print(f"New plant IDs to upload: {new_plants_data['plant_id'].tolist()}")
 
     for _, plant in new_plants_data.iterrows():
         cursor.execute(
@@ -85,7 +86,8 @@ def upload_new_plants_with_location(data: pd.DataFrame) -> None:
             USING (SELECT %s AS latitude, %s AS longitude, (
                     SELECT region_id FROM alpha.region WHERE region_name = %s
                 ) AS region_id) AS source
-            ON target.latitude = source.latitude AND target.longitude = source.longitude AND target.region_id = source.region_id
+            ON target.latitude = source.latitude AND target.longitude = source.longitude 
+            AND target.region_id = source.region_id
             WHEN NOT MATCHED THEN
                 INSERT (latitude, longitude, region_id)
                 VALUES (source.latitude, source.longitude, source.region_id);
@@ -97,12 +99,15 @@ def upload_new_plants_with_location(data: pd.DataFrame) -> None:
             """
             MERGE alpha.plant AS target
             USING (SELECT %s AS plant_id, (
-                    SELECT location_id FROM alpha.location WHERE latitude = %s AND longitude = %s
-                ) AS location_id, %s AS scientific_name, %s AS image_id, %s AS common_name) AS source
+                    SELECT location_id FROM alpha.location
+                    WHERE latitude = %s AND longitude = %s
+                ) AS location_id, %s AS scientific_name,
+                %s AS image_id, %s AS common_name) AS source
             ON target.plant_id = source.plant_id
             WHEN NOT MATCHED THEN
                 INSERT (plant_id, location_id, scientific_name, image_id, common_name)
-                VALUES (source.plant_id, source.location_id, source.scientific_name, source.image_id, source.common_name);
+                VALUES (source.plant_id, source.location_id,
+                source.scientific_name, source.image_id, source.common_name);
             """,
             (
                 plant["plant_id"],

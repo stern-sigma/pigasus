@@ -1,10 +1,8 @@
-"""Functions to take transformed data and load relevant information
-into the short-term database"""
-
 import os
 import pymssql
 import pandas as pd
 from dotenv import load_dotenv
+
 
 def get_connection():
     """
@@ -20,7 +18,8 @@ def get_connection():
     )
     return conn
 
-def get_existing_plant_ids(cursor, plant_ids: list) -> set:
+
+def get_existing_plant_ids(conn: pymssql.Connection, plant_ids: list) -> set:
     """
     Returns a set of plant_ids that already exist in the database.
     """
@@ -29,102 +28,103 @@ def get_existing_plant_ids(cursor, plant_ids: list) -> set:
 
     placeholders = ", ".join(["%s"] * len(plant_ids))
     query = f"SELECT plant_id FROM alpha.plant WHERE plant_id IN ({placeholders})"
-    cursor.execute(query, tuple(plant_ids))
-    rows = cursor.fetchall()
+    
+    with conn.cursor() as cursor:
+        cursor.execute(query, tuple(plant_ids))
+        rows = cursor.fetchall()
+
     return {row[0] for row in rows}
 
-def upload_new_plants_with_location(data: pd.DataFrame) -> None:
+
+def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame) -> None:
     """
     Uploads all new plants along with their country, region, location, and plant details
     using SQL Server's MERGE statement.
     """
-    conn = get_connection()
-    cursor = conn.cursor()
-
     plant_ids_in_data = data["plant_id"].tolist()
-
-    existing_ids = get_existing_plant_ids(cursor, plant_ids_in_data)
+    existing_ids = get_existing_plant_ids(conn, plant_ids_in_data)
     print(f"Existing plant IDs in DB: {existing_ids}")
 
     new_plants_data = data[~data["plant_id"].isin(existing_ids)]
     if new_plants_data.empty:
         print("No new plants to upload.")
-        conn.close()
         return
+
     print(f"New plant IDs to upload: {new_plants_data['plant_id'].tolist()}")
 
-    for _, plant in new_plants_data.iterrows():
-        cursor.execute(
-            """
-            MERGE alpha.country AS target
-            USING (SELECT %s AS country_code) AS source
-            ON target.country_code = source.country_code
-            WHEN NOT MATCHED THEN
-                INSERT (country_code)
-                VALUES (source.country_code);
-            """,
-            (plant["country"],)
-        )
-
-        cursor.execute(
-            """
-            MERGE alpha.region AS target
-            USING (SELECT %s AS region_name, (
-                    SELECT country_id FROM alpha.country WHERE country_code = %s
-                ) AS country_id) AS source
-            ON target.region_name = source.region_name AND target.country_id = source.country_id
-            WHEN NOT MATCHED THEN
-                INSERT (region_name, country_id)
-                VALUES (source.region_name, source.country_id);
-            """,
-            (plant["region"], plant["country"])
-        )
-
-        cursor.execute(
-            """
-            MERGE alpha.location AS target
-            USING (SELECT %s AS latitude, %s AS longitude, (
-                    SELECT region_id FROM alpha.region WHERE region_name = %s
-                ) AS region_id) AS source
-            ON target.latitude = source.latitude AND target.longitude = source.longitude 
-            AND target.region_id = source.region_id
-            WHEN NOT MATCHED THEN
-                INSERT (latitude, longitude, region_id)
-                VALUES (source.latitude, source.longitude, source.region_id);
-            """,
-            (plant["latitude"], plant["longitude"], plant["region"])
-        )
-
-        cursor.execute(
-            """
-            MERGE alpha.plant AS target
-            USING (SELECT %s AS plant_id, (
-                    SELECT location_id FROM alpha.location
-                    WHERE latitude = %s AND longitude = %s
-                ) AS location_id, %s AS scientific_name,
-                %s AS image_id, %s AS common_name) AS source
-            ON target.plant_id = source.plant_id
-            WHEN NOT MATCHED THEN
-                INSERT (plant_id, location_id, scientific_name, image_id, common_name)
-                VALUES (source.plant_id, source.location_id,
-                source.scientific_name, source.image_id, source.common_name);
-            """,
-            (
-                plant["plant_id"],
-                plant["latitude"], plant["longitude"],
-                plant["scientific_name"],
-                plant["image_id"],
-                plant["name"]
+    with conn.cursor() as cursor:
+        for _, plant in new_plants_data.iterrows():
+            cursor.execute(
+                """
+                MERGE alpha.country AS target
+                USING (SELECT %s AS country_code) AS source
+                ON target.country_code = source.country_code
+                WHEN NOT MATCHED THEN
+                    INSERT (country_code)
+                    VALUES (source.country_code);
+                """,
+                (plant["country"],)
             )
-        )
-    conn.commit()
-    conn.close()
+
+            cursor.execute(
+                """
+                MERGE alpha.region AS target
+                USING (SELECT %s AS region_name, (
+                        SELECT country_id FROM alpha.country WHERE country_code = %s
+                    ) AS country_id) AS source
+                ON target.region_name = source.region_name AND target.country_id = source.country_id
+                WHEN NOT MATCHED THEN
+                    INSERT (region_name, country_id)
+                    VALUES (source.region_name, source.country_id);
+                """,
+                (plant["region"], plant["country"])
+            )
+
+            cursor.execute(
+                """
+                MERGE alpha.location AS target
+                USING (SELECT %s AS latitude, %s AS longitude, (
+                        SELECT region_id FROM alpha.region WHERE region_name = %s
+                    ) AS region_id) AS source
+                ON target.latitude = source.latitude AND target.longitude = source.longitude 
+                AND target.region_id = source.region_id
+                WHEN NOT MATCHED THEN
+                    INSERT (latitude, longitude, region_id)
+                    VALUES (source.latitude, source.longitude, source.region_id);
+                """,
+                (plant["latitude"], plant["longitude"], plant["region"])
+            )
+
+            cursor.execute(
+                """
+                MERGE alpha.plant AS target
+                USING (SELECT %s AS plant_id, (
+                        SELECT location_id FROM alpha.location
+                        WHERE latitude = %s AND longitude = %s
+                    ) AS location_id, %s AS scientific_name,
+                    %s AS image_id, %s AS common_name) AS source
+                ON target.plant_id = source.plant_id
+                WHEN NOT MATCHED THEN
+                    INSERT (plant_id, location_id, scientific_name, image_id, common_name)
+                    VALUES (source.plant_id, source.location_id,
+                    source.scientific_name, source.image_id, source.common_name);
+                """,
+                (
+                    plant["plant_id"],
+                    plant["latitude"], plant["longitude"],
+                    plant["scientific_name"],
+                    plant["image_id"],
+                    plant["name"]
+                )
+            )
+        conn.commit()
     print("Upload process completed.")
 
-def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame
-                     ) -> None:
-    """Updates the botanists table in the database"""
-    cur = conn.cursor()
+
+def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None:
+    """
+    Updates the botanists table in the database.
+    """
     create_temp_table_sql = """
         CREATE TABLE alpha.#transaction_botanists(
             name VARCHAR(30) NOT NULL,
@@ -156,17 +156,20 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame
         "botanist_email",
         "botanist_phone"]]
     upload_data = [tuple(x) for x in botanist_data.itertuples(index=False)]
-    print(upload_data)
 
-    with conn.cursor() as cur:
-        cur.execute(create_temp_table_sql)
-        cur.executemany(populate_temp_table_sql, seq_of_parameters=upload_data)
-        cur.execute(merge_tables_sql)
-        cur.execute(drop_temp_table_sql)
+    with conn.cursor() as cursor:
+        cursor.execute(create_temp_table_sql)
+        cursor.executemany(populate_temp_table_sql, seq_of_parameters=upload_data)
+        cursor.execute(merge_tables_sql)
+        cursor.execute(drop_temp_table_sql)
+
     conn.commit()
+
 
 if __name__ == '__main__':
     load_dotenv()
+
+    conn = get_connection()
 
     new_plant_data = pd.DataFrame([{
         "botanist_email": "eliza.andrews@lnhm.co.uk",
@@ -184,10 +187,11 @@ if __name__ == '__main__':
         "soil_moisture": 99.99,
         "temperature": -42.42,
         "name": "Martian Death Bloom",
-        "latitude": 0.0,      
-        "longitude": 0.0,     
-        "image_id": None      
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "image_id": None
     }])
 
     print(new_plant_data)
-    upload_new_plants_with_location(new_plant_data)
+    upload_new_plants_with_location(conn, new_plant_data)
+    conn.close()

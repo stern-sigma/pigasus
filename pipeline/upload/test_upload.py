@@ -22,11 +22,14 @@ def test_get_existing_plant_ids_returns_set():
     """
     Test that get_existing_plant_ids returns the correct set given some fake database rows.
     """
-    mock_cursor = MagicMock()
+    mock_conn = MagicMock()
+    mock_cursor = mock_conn.cursor.return_value.__enter__.return_value
+
     # Suppose the database returns plant_ids 1 and 3 for the query.
     plant_ids = [1, 2, 3]
     mock_cursor.fetchall.return_value = [(1,), (3,)]
-    result = get_existing_plant_ids(mock_cursor, plant_ids)
+    result = get_existing_plant_ids(mock_conn, plant_ids)
+
     placeholders = ", ".join(["%s"] * len(plant_ids))
     expected_query = f"SELECT plant_id FROM alpha.plant WHERE plant_id IN ({placeholders})"
     mock_cursor.execute.assert_called_once_with(expected_query, tuple(plant_ids))
@@ -34,17 +37,17 @@ def test_get_existing_plant_ids_returns_set():
     assert result == {1, 3}
 
 
+
 @patch("upload.get_connection")
 def test_upload_new_plants_with_location_no_new(mock_get_connection):
     """
-    Test that if all plants in the DataFrame already exist, 
-    the function prints a message and closes the connection without executing MERGE queries.
+    Test that if all plants in the DataFrame already exist,
+    the function prints a message without executing MERGE queries.
     """
     mock_conn = MagicMock()
-    mock_cursor = MagicMock()
+    mock_cursor = mock_conn.cursor.return_value.__enter__.return_value
     mock_get_connection.return_value = mock_conn
-    mock_conn.cursor.return_value = mock_cursor
-    
+
     test_plant_id = 9999
     data = pd.DataFrame([{
         "botanist_email": "test@example.com",
@@ -66,27 +69,24 @@ def test_upload_new_plants_with_location_no_new(mock_get_connection):
         "longitude": 20.0,
         "image_id": None
     }])
-    
+
     mock_cursor.fetchall.return_value = [(test_plant_id,)]
-    
-    upload_new_plants_with_location(data)
-    
-    mock_conn.close.assert_called_once()
-    # Because no new plant is uploaded, none of the MERGE queries should be executed.
-    # (The first call to execute is in get_existing_plant_ids, but after that, nothing else should be executed.)
+
+    upload_new_plants_with_location(mock_conn, data)
+
+    # Assert only one query was executed (get_existing_plant_ids)
     assert mock_cursor.execute.call_count == 1
+    mock_conn.commit.assert_not_called()
 
 
 @patch("upload.get_connection")
 def test_upload_new_plants_with_location_new(mock_get_connection):
     """
-    Test that if a new plant is provided, the function executes the MERGE queries
-    and commits/closes the connection.
+    Test that if a new plant is provided, the function executes the MERGE queries.
     """
     mock_conn = MagicMock()
-    mock_cursor = MagicMock()
+    mock_cursor = mock_conn.cursor.return_value.__enter__.return_value
     mock_get_connection.return_value = mock_conn
-    mock_conn.cursor.return_value = mock_cursor
 
     test_plant_id = 8888
     data = pd.DataFrame([{
@@ -109,19 +109,19 @@ def test_upload_new_plants_with_location_new(mock_get_connection):
         "longitude": 40.0,
         "image_id": None
     }])
-    
+
     # Simulate that there are no existing plant_ids by returning an empty list.
     mock_cursor.fetchall.return_value = []
-    
-    upload_new_plants_with_location(data)
-    
-    # There are four MERGE statements in the loop for each plant.
-    # In this case, we expect 4 execute calls inside the loop plus 1 call from get_existing_plant_ids.
+
+    upload_new_plants_with_location(mock_conn, data)
+
+    # Four MERGE statements + one query in get_existing_plant_ids = 5 total queries
     assert mock_cursor.execute.call_count == 5
-    
-    # Ensure that commit and close are called.
+
+    # Ensure commit is called
     mock_conn.commit.assert_called_once()
-    mock_conn.close.assert_called_once()
+
+
 
 
 def test_create_temp_table_sql():

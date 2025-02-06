@@ -2,7 +2,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data, format_watered_column, format_recording_taken, capitalise_plant_name, validate_and_make_soil_moisture_absolute, process_temperature_column
+from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data, format_watered_column, format_recording_taken, capitalise_plant_name, validate_and_make_soil_moisture_absolute, process_temperature_column, transform_and_clean_data
 
 
 def test_convert_to_dataframe():
@@ -200,3 +200,140 @@ def test_temperature_column_exists_and_valid():
     assert processed_df['temperature'][0] == 23.5
     assert processed_df['temperature'][1] == 15.8
     assert processed_df['temperature'][2] == 30.1
+
+
+def test_temperature_column_exists():
+    raw_data = [
+        {
+            "botanist": {"email": "carl.linnaeus@lnhm.co.uk", "name": "Carl Linnaeus", "phone": "(146)994-1635x35992"},
+            "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
+            "name": "Epipremnum Aureum",
+            "plant_id": 50,
+            "recording_taken": "2025-02-06 12:44:11",
+            "soil_moisture": 20.9415458664085,
+            "temperature": 13.2073378873147
+        }
+    ]
+    df = transform_and_clean_data(raw_data)
+    assert "temperature" in df.columns
+
+
+def test_temperature_column_type():
+    raw_data = [
+        {
+            "botanist": {"email": "carl.linnaeus@lnhm.co.uk", "name": "Carl Linnaeus", "phone": "(146)994-1635x35992"},
+            "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
+            "name": "Epipremnum Aureum",
+            "plant_id": 50,
+            "recording_taken": "2025-02-06 12:44:11",
+            "soil_moisture": 20.9415458664085,
+            "temperature": 13.2073378873147
+        }
+    ]
+    df = transform_and_clean_data(raw_data)
+    assert pd.api.types.is_float_dtype(df["temperature"])
+
+
+def test_invalid_temperature_is_nan():
+    raw_data = [
+        {
+            "botanist": {"email": "gertrude.jekyll@lnhm.co.uk", "name": "Gertrude Jekyll", "phone": "001-481-273-3691x127"},
+            "last_watered": "Wed, 05 Feb 2025 13:54:32 GMT",
+            "name": "Venus flytrap",
+            "plant_id": 1,
+            "recording_taken": "2025-02-06 13:15:07",
+            "soil_moisture": 17.2879767785433,
+            "temperature": "invalid_temperature"
+        }
+    ]
+    df = transform_and_clean_data(raw_data)
+    assert df["temperature"][0] != "invalid_temperature"
+    assert np.isnan(df["temperature"][0])
+
+
+def test_name_column_exists():
+    raw_data = [
+        {
+            "botanist": {"email": "carl.linnaeus@lnhm.co.uk", "name": "Carl Linnaeus", "phone": "(146)994-1635x35992"},
+            "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
+            "name": "Epipremnum Aureum",
+            "plant_id": 50,
+            "recording_taken": "2025-02-06 12:44:11",
+            "soil_moisture": 20.9415458664085,
+            "temperature": 13.2073378873147
+        }
+    ]
+    df = transform_and_clean_data(raw_data)
+    assert "name" in df.columns
+
+
+def test_soil_moisture_column_type():
+    raw_data = [
+        {
+            "botanist": {"email": "carl.linnaeus@lnhm.co.uk", "name": "Carl Linnaeus", "phone": "(146)994-1635x35992"},
+            "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
+            "name": "Epipremnum Aureum",
+            "plant_id": 50,
+            "recording_taken": "2025-02-06 12:44:11",
+            "soil_moisture": 20.9415458664085,
+            "temperature": 13.2073378873147
+        }
+    ]
+    df = transform_and_clean_data(raw_data)
+    assert "soil_moisture" in df.columns
+    assert pd.api.types.is_float_dtype(df["soil_moisture"])
+
+
+def test_soil_moisture_valid():
+    raw_data = [
+        {
+            "botanist": {"email": "carl.linnaeus@lnhm.co.uk", "name": "Carl Linnaeus", "phone": "(146)994-1635x35992"},
+            "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
+            "name": "Epipremnum Aureum",
+            "plant_id": 50,
+            "recording_taken": "2025-02-06 12:44:11",
+            "soil_moisture": 20.9415458664085,
+            "temperature": 13.2073378873147
+        }
+    ]
+    df = transform_and_clean_data(raw_data)
+    assert not np.isnan(df["soil_moisture"][0])
+
+
+def test_scientific_name_column_exists():
+    raw_data = [
+        {
+            "botanist": {"email": "carl.linnaeus@lnhm.co.uk", "name": "Carl Linnaeus", "phone": "(146)994-1635x35992"},
+            "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
+            "name": "Epipremnum Aureum",
+            "plant_id": 50,
+            "recording_taken": "2025-02-06 12:44:11",
+            "soil_moisture": 20.9415458664085,
+            "temperature": 13.2073378873147,
+            "scientific_name": ["Epipremnum aureum"]
+        }
+    ]
+    df = transform_and_clean_data(raw_data)
+    assert "scientific_name" in df.columns
+
+
+def test_last_watered_column_datetime():
+    raw_data = [
+        {
+            "botanist": {"email": "carl.linnaeus@lnhm.co.uk", "name": "Carl Linnaeus", "phone": "(146)994-1635x35992"},
+            "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
+            "name": "Epipremnum Aureum",
+            "plant_id": 50,
+            "recording_taken": "2025-02-06 12:44:11",
+            "soil_moisture": 20.9415458664085,
+            "temperature": 13.2073378873147
+        }
+    ]
+    df = transform_and_clean_data(raw_data)
+    assert pd.to_datetime(df["last_watered"]).isnull().sum() == 0
+
+
+def test_empty_data_returns_empty_df():
+    empty_data = []
+    empty_df = transform_and_clean_data(empty_data)
+    assert empty_df.empty

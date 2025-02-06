@@ -145,3 +145,16 @@ def process_temperature_column(data_frame):
     return df
 
 
+def transform_and_clean_data(raw_data: list[dict]):
+    """Returns dataframe that has been cleaned."""
+    df = convert_to_dataframe(raw_data)
+    df = clean_image_data(df)
+    df = clean_scientific_name(df)
+    df = format_recording_taken(df)
+    df = parse_botanist_data(df)
+    df = format_watered_column(df)
+    df = parse_origin_location(df)
+    df = capitalise_plant_name(df)
+    df = process_temperature_column(df)
+    return df
+

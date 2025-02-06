@@ -127,7 +127,10 @@ def validate_soil_moisture(df:pd.DataFrame) -> pd.DataFrame:
 
 
 def process_temperature_column(df:pd.DataFrame) -> pd.DataFrame:
-    """Returrs the processed temperature column."""
+    """Returrs the processed temperature column.
+        Removes invalid data types.
+        If column does not exist, still create it for consistency.
+    """
     if 'temperature' not in df.columns:
         df['temperature'] = np.nan
     df['temperature'] = df['temperature'].apply(

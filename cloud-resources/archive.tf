@@ -137,5 +137,5 @@ schedule_expression = "cron(0 * ? * * *)"
 
 resource "aws_s3_bucket" "archive" {
   bucket = "pigasus-archive"
-  force_destroy = false
+  force_destroy = true
 }

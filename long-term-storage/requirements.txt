@@ -8,4 +8,4 @@ python-dotenv
 pandas
 pyarrow
 boto3
-moto s3
+moto

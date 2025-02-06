@@ -30,12 +30,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest-cov
 
+      - name: Set environment variables and reinstall pymssql
+        run: |
+          export LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/openssl/lib"
+          export CFLAGS="-I/opt/homebrew/include"
+          export CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include"
+          pip install pymssql==2.2.8 --no-binary :all:
+
       - name: Run Pytest with Coverage Check
         run: |
           if python -m pytest --collect-only | grep -q "collected 0 items"; then
-          echo "No tests collected, skipping coverage check."
+            echo "No tests collected, skipping coverage check."
           else
-          python -m pytest --cov=./ --cov-config=.coveragerc --cov-fail-under=80
+            python -m pytest --cov=./ --cov-config=.coveragerc --cov-fail-under=80
           fi
 
 

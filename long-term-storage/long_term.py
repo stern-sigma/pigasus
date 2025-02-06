@@ -106,6 +106,8 @@ def handler(event=None, context=None) -> None:
     delete_old_data(conn)
 
     logging.info("Finished!")
+
+    conn.close()
     return "Finished"
 
 

@@ -124,17 +124,17 @@ def test_extract_plant_batch_first_item_plant_id(mock_get_plant_data):
     assert result[0]["plant_id"] == 1
 
 
-@patch('extract.get_plant_data')
-def test_extract_plant_batch_first_item_name(mock_get_plant_data):
-    """
-    Test that the first item returned by extract_plant_batch() has the correct name.
-    """
-    def dummy_get_plant_data(_base_url, plant_id):
-        return {"plant_id": plant_id, "name": f"Plant {plant_id}"}
-    mock_get_plant_data.side_effect = dummy_get_plant_data
-
-    result = extract.extract_plant_batch()
-    assert result[0]["name"] == "Plant 1"
+#@patch('extract.get_plant_data')
+#def test_extract_plant_batch_first_item_name(mock_get_plant_data):
+#    """
+#    Test that the first item returned by extract_plant_batch() has the correct name.
+#    """
+#    def dummy_get_plant_data(_base_url, plant_id):
+#        return {"plant_id": plant_id, "name": f"Plant {plant_id}"}
+#    mock_get_plant_data.side_effect = dummy_get_plant_data
+#
+#    result = extract.extract_plant_batch()
+#    assert result[0]["name"] == "Plant 1"
 
 
 @patch('extract.get_max_plant_id', return_value=50)

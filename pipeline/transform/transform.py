@@ -127,7 +127,7 @@ def validate_soil_moisture(df:pd.DataFrame) -> pd.DataFrame:
 
 
 def process_temperature_column(df:pd.DataFrame) -> pd.DataFrame:
-    """Returrs the processed temperature column.
+    """Returns the processed temperature column.
         Removes invalid data types.
         If column does not exist, still create it for consistency.
     """
@@ -140,7 +140,7 @@ def process_temperature_column(df:pd.DataFrame) -> pd.DataFrame:
 
 
 def transform_and_clean_data(raw_data: list[dict]):
-    """Returns dataframe that has been cleaned."""
+    """Returns dataframe that has been cleaned correctly."""
     df = convert_to_dataframe(raw_data)
     df = clean_image_data(df)
     df = clean_scientific_name(df)

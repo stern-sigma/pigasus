@@ -10,7 +10,7 @@ def convert_to_dataframe(raw_data:list[dict]):
     return pd.DataFrame(raw_data)
 
 
-def parse_botanist_data(df:pd.DataFrame) -> pd.DataFrame:
+def parse_botanist_data(df: pd.DataFrame) -> pd.DataFrame:
     """Returns botanist data into separate columns, ensuring NaN for missing values without dropping rows."""
 
     if "botanist" not in df.columns:
@@ -22,11 +22,11 @@ def parse_botanist_data(df:pd.DataFrame) -> pd.DataFrame:
     df["botanist_phone"] = df["botanist"].apply(
         lambda x: x.get("phone") if isinstance(x, dict) else np.nan)
 
-    df.drop(columns=["botanist"], inplace=True)
+    df = df.drop(columns=["botanist"])
     return df
 
 
-def parse_origin_location(df:pd.DataFrame) -> pd.DataFrame:
+def parse_origin_location(df: pd.DataFrame) -> pd.DataFrame:
     """Returns the origin_location column parsed into separate region and country columns, handling missing values."""
     if "origin_location" not in df.columns:
         df["origin_location"] = np.nan
@@ -37,9 +37,10 @@ def parse_origin_location(df:pd.DataFrame) -> pd.DataFrame:
     df["country"] = df["origin_location"].apply(
         lambda x: x[3] if isinstance(x, list) and len(x) > 3 else np.nan
     )
-    df.drop(columns=["origin_location"], inplace=True)
 
+    df = df.drop(columns=["origin_location"])
     return df
+
 
 def clean_scientific_name(df:pd.DataFrame) -> pd.DataFrame:
     """Returns the scientific_name column cleaned - transformed into a string and ensured that it is consistent."""

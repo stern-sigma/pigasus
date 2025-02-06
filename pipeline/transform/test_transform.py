@@ -2,7 +2,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data, format_watered_column, format_recording_taken, capitalise_plant_name, validate_and_make_soil_moisture_absolute, process_temperature_column, transform_and_clean_data
+from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data, format_watered_column, format_recording_taken, capitalise_plant_name, validate_soil_moisture, process_temperature_column, transform_and_clean_data
 
 
 def test_convert_to_dataframe():
@@ -182,7 +182,7 @@ def test_clean_scientific_name_missing_column():
 
 def test_soil_moisture_column_creation():
     df = pd.DataFrame([{"name": "Plant 1"}])  # Missing soil_moisture
-    result = validate_and_make_soil_moisture_absolute(df)
+    result = validate_soil_moisture(df)
     assert "soil_moisture" in result.columns
     assert pd.isna(result["soil_moisture"].iloc[0])
 

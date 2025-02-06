@@ -10,10 +10,8 @@ def convert_to_dataframe(raw_data:list[dict]):
     return pd.DataFrame(raw_data)
 
 
-def parse_botanist_data(data_frame):
-    """Extracts botanist data into separate columns, ensuring NaN for missing values without dropping rows."""
-
-    df = data_frame
+def parse_botanist_data(df):
+    """Returns botanist data into separate columns, ensuring NaN for missing values without dropping rows."""
 
     if "botanist" not in df.columns:
         df["botanist"] = np.nan
@@ -28,10 +26,8 @@ def parse_botanist_data(data_frame):
     return df
 
 
-def parse_origin_location(data_frame):
-    """Parses the origin_location column into separate region and country columns, handling missing values."""
-
-    df = data_frame
+def parse_origin_location(df):
+    """Returns the origin_location column parsed into separate region and country columns, handling missing values."""
     if "origin_location" not in df.columns:
         df["origin_location"] = np.nan
 
@@ -45,25 +41,24 @@ def parse_origin_location(data_frame):
 
     return df
 
-def clean_scientific_name(data_frame):
-    """Cleans the scientific_name column."""
-    if "scientific_name" not in data_frame.columns:
-        data_frame['scientific_name'] = np.nan
+def clean_scientific_name(df):
+    """Returns the scientific_name column cleaned - transformed into a string and ensured that it is consistent."""
+    if "scientific_name" not in df.columns:
+        df['scientific_name'] = np.nan
 
-    data_frame['scientific_name'] = data_frame['scientific_name'].apply(
+    df['scientific_name'] = df['scientific_name'].apply(
         lambda x: ', '.join([part.capitalize() for part in x]) if isinstance(x, list) else
         (x.capitalize() if isinstance(x, str) else np.nan)
     )
 
-    data_frame["scientific_name"] = data_frame["scientific_name"].apply(
+    df["scientific_name"] = df["scientific_name"].apply(
         lambda x: x.title() if isinstance(x, str) else np.nan)
 
-    return data_frame
+    return df
 
 
-def clean_image_data(data_frame):
+def clean_image_data(df):
     """Returns the images column into separate columns, creating them even if 'images' does not exist."""
-    df = data_frame
 
     if "images" not in df.columns:
         df["images"] = None
@@ -82,9 +77,8 @@ def clean_image_data(data_frame):
 
 
 
-def format_watered_column(data_frame):
+def format_watered_column(df):
     """Converts the last_watered column to a datetime object with second precision."""
-    df = data_frame
     if "last_watered" not in df.columns:
         df["last_watered"] = np.nan
     else:
@@ -97,9 +91,8 @@ def format_watered_column(data_frame):
             df["last_watered"].notna(), np.nan)
     return df
 
-def format_recording_taken(data_frame):
+def format_recording_taken(df):
     """Converts recording_taken to a datetime object or NaN if invalid or missing."""
-    df = data_frame
     if "recording_taken" not in df.columns:
         df["recording_taken"] = np.nan
     df['recording_taken'] = pd.to_datetime(
@@ -110,9 +103,9 @@ def format_recording_taken(data_frame):
     return df
 
 
-def capitalise_plant_name(data_frame):
-    """Capitalises each word in the plant name, removes non-alphabetic characters (except spaces), and handles leading/trailing spaces."""
-    df = data_frame.copy()
+def capitalise_plant_name(df):
+    """Returns each word in the plant name capitalised.
+    Removes non-alphabetic characters (except spaces), and handles leading/trailing spaces."""
 
     if "name" not in df.columns:
         df["name"] = np.nan
@@ -123,9 +116,8 @@ def capitalise_plant_name(data_frame):
     return df
 
 
-def validate_and_make_soil_moisture_absolute(data_frame):
-    """Ensures the soil_moisture column exists, makes negative values absolute, and handles invalid or missing values."""
-    df = data_frame.copy()
+def validate_soil_moisture(df):
+    """Returns the soil_moisture column. Checks it exists, makes negative values absolute, and handles invalid or missing values."""
     if "soil_moisture" not in df.columns:
         df["soil_moisture"] = np.nan
     df["soil_moisture"] = df["soil_moisture"].apply(
@@ -134,9 +126,8 @@ def validate_and_make_soil_moisture_absolute(data_frame):
     return df
 
 
-def process_temperature_column(data_frame):
-    """Returrns the processed temperature column."""
-    df = data_frame
+def process_temperature_column(df):
+    """Returrs the processed temperature column."""
     if 'temperature' not in df.columns:
         df['temperature'] = np.nan
     df['temperature'] = df['temperature'].apply(

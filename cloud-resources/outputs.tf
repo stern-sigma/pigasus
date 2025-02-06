@@ -9,3 +9,7 @@ output "archive_ecr_url" {
 output "s3_bucket_name" {
   value = aws_s3_bucket.archive.id
 }
+  
+output "dashboard_ecr_url" {
+  value = aws_ecr_repository.dashboard_ecr.repository_url
+}

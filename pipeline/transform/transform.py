@@ -91,17 +91,34 @@ def clean_image_data(data_frame):
 
     return df
 
+
 def format_watered_column(data_frame):
-    """Returns the last_watered column into a datetime object."""
+    """Converts the last_watered column to a datetime object or None if invalid."""
     df = data_frame
 
     if "last_watered" not in df.columns:
         raise KeyError("last_watered column was not found!")
-    
-
     df['last_watered'] = pd.to_datetime(df['last_watered'], errors='coerce')
+
+    df['last_watered'] = df['last_watered'].apply(
+        lambda x: None if pd.isna(x) else x)
+
     return df
 
+def format_recording_taken(data_frame):
+    """Converts recording_taken to a datetime object or None if invalid."""
+    df = data_frame
+
+    if "recording_taken" not in df.columns:
+        raise KeyError("recording_taken column was not found!")
+
+
+    df['recording_taken'] = pd.to_datetime(
+        df['recording_taken'], errors='coerce')
+    df['recording_taken'] = df['recording_taken'].apply(
+        lambda x: None if pd.isna(x) else x)
+
+    return df
 
     
 

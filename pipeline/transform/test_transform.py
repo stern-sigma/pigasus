@@ -2,7 +2,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data, format_watered_column
+from transform import parse_botanist_data, parse_origin_location, convert_to_dataframe, clean_scientific_name, clean_image_data, format_watered_column, format_recording_taken
 
 
 def test_get_botanist_data():
@@ -288,3 +288,17 @@ def test_datetime_with_timezone():
     formatted_df_timezone = format_watered_column(df_timezone)
     assert formatted_df_timezone['last_watered'][0] == pd.to_datetime(
         "Mon, 02 Feb 2025 08:00:00 GMT")
+
+
+def test_empty_recording_taken():
+    """Test when recording_taken is an empty string."""
+    df = pd.DataFrame({'recording_taken': ['']})
+    df = format_recording_taken(df)
+    assert df['recording_taken'][0] is None
+
+
+def test_last_recording_missing():
+    """Test case where scientific_name column is missing from the DataFrame."""
+    df = pd.DataFrame({'some_other_column': [1, 2, 3]})
+    with pytest.raises(KeyError):
+        format_recording_taken(df)

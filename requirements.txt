@@ -4,3 +4,7 @@ pylint
 pytest-cov
 requests
 pandas
+python-dotenv
+pyarrow
+boto3
+moto

@@ -4,11 +4,9 @@ DROP TABLE IF EXISTS alpha.reading;
 DROP TABLE IF EXISTS alpha.plant; 
 DROP TABLE IF EXISTS alpha.image;
 DROP TABLE IF EXISTS alpha.location;
-DROP TABLE IF EXISTS alpha.city;
 DROP TABLE IF EXISTS alpha.region;
 DROP TABLE IF EXISTS alpha.country;
 DROP TABLE IF EXISTS alpha.botanist;
-DROP TABLE IF EXISTS alpha.continent;
 DROP TABLE IF EXISTS alpha.license;
 
 CREATE TABLE alpha.botanist (
@@ -18,16 +16,9 @@ CREATE TABLE alpha.botanist (
     phone_number VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE alpha.continent (
-    continent_id TINYINT PRIMARY KEY IDENTITY(1,1),
-    continent_name VARCHAR(10) NOT NULL
-);
-
 CREATE TABLE alpha.country (
     country_id SMALLINT PRIMARY KEY IDENTITY(1,1),
-    country_code VARCHAR(20) NOT NULL,
-    continent_id TINYINT NOT NULL,
-    FOREIGN KEY (continent_id) REFERENCES alpha.continent(continent_id)
+    country_code VARCHAR(2) NOT NULL
 );
 
 CREATE TABLE alpha.region (
@@ -37,19 +28,12 @@ CREATE TABLE alpha.region (
     FOREIGN KEY (country_id) REFERENCES alpha.country(country_id)
 );
 
-CREATE TABLE alpha.city (
-    city_id INT PRIMARY KEY IDENTITY(1,1),
-    city_name VARCHAR(20) NOT NULL,
-    region_id SMALLINT,
-    FOREIGN KEY (region_id) REFERENCES alpha.region(region_id)
-);
-
 CREATE TABLE alpha.location (
     location_id INT PRIMARY KEY IDENTITY(1,1),
     latitude DECIMAL NOT NULL,
     longitude DECIMAL NOT NULL,
-    city_id INT NOT NULL,
-    FOREIGN KEY (city_id) REFERENCES alpha.city(city_id)
+    region_id SMALLINT NOT NULL,
+    FOREIGN KEY (region_id) REFERENCES alpha.region(region_id)
 );
 
 CREATE TABLE alpha.license (
@@ -90,5 +74,3 @@ CREATE TABLE alpha.reading (
     FOREIGN KEY (botanist_id) REFERENCES alpha.botanist(botanist_id),
     FOREIGN KEY (plant_id) REFERENCES alpha.plant(plant_id)
 );
-
-

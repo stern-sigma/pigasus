@@ -2,9 +2,11 @@
 
 import plotly_express as px
 from streamlit import connection
+import streamlit as st
 
 
-def botanist_reading_bar_chart(conn: connection):
+@st.cache_data
+def botanist_reading_bar_chart(_conn: connection):
     """Returns a bar chart displaying number of readings taken per botanist."""
     q = """
     SELECT COUNT(*) as count, b.name
@@ -13,12 +15,13 @@ def botanist_reading_bar_chart(conn: connection):
     ON b.botanist_id = r.botanist_id
     GROUP BY b.name
     """
-    bar_chart_df = conn.query(q)
+    bar_chart_df = _conn.query(q)
     bar_chart = px.bar(bar_chart_df, x="name", y="count")
     return bar_chart
 
 
-def botanist_pie_chart(conn: connection, botanist: str):
+@st.cache_data
+def botanist_pie_chart(_conn: connection, botanist: str):
     """Returns a pie chart showing proportion of healthy readings taken per botanist."""
     q = """
     WITH healthy_readings AS(
@@ -36,13 +39,14 @@ def botanist_pie_chart(conn: connection, botanist: str):
     WHERE name = :botanist_name
     GROUP BY status
     """
-    pie_chart_df = conn.query(q, params={"botanist_name": botanist})
+    pie_chart_df = _conn.query(q, params={"botanist_name": botanist})
     pie_chart = px.pie(pie_chart_df, values="count", names="status",
                        title=f"Proportion of Healthy Readings Taken By {botanist}")
     return pie_chart
 
 
-def count_days_since_watered(conn: connection, botanist: str):
+@st.cache_data
+def count_days_since_watered(_conn: connection, botanist: str):
     """Returns bar chart showing count of days since last watered per botanist."""
     q = """
     SELECT COUNT(DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP)) AS count, 
@@ -53,14 +57,15 @@ def count_days_since_watered(conn: connection, botanist: str):
     WHERE name = :botanist_name
     GROUP BY DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP)
     """
-    bar_chart_df = conn.query(q, params={"botanist_name": botanist})
+    bar_chart_df = _conn.query(q, params={"botanist_name": botanist})
     bar_chart = px.bar(bar_chart_df, y="count",
                        x="Days Since Last Watered", title=f"Count Number of Days Since Last Watered for {botanist}")
     bar_chart.update_layout(xaxis_type="category")
     return bar_chart
 
 
-def botanist_plant_reading_count(conn: connection, plant_name: list[str]):
+@st.cache_data
+def botanist_plant_reading_count(_conn: connection, plant_name: list[str]):
     """Returns a bar chart showing how many readings a botanist has for a certain plant."""
 
     q = """
@@ -73,7 +78,7 @@ def botanist_plant_reading_count(conn: connection, plant_name: list[str]):
     GROUP BY b.name, p.scientific_name
     """
 
-    botanist_plant_reading_df = conn.query(
+    botanist_plant_reading_df = _conn.query(
         q, params={"plant_name": plant_name})
     bar_chart = px.bar(botanist_plant_reading_df,
                        x="scientific_name", y="count", color="name", barmode="group")

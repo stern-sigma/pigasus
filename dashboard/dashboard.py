@@ -52,11 +52,11 @@ def main():
             st.plotly_chart(moisture_pie_chart(conn))
 
     with end_col2:
-        plant = st.radio("Plant ID", get_plant_id(
-            conn), horizontal=True, index=0, key="1")
+        plant = st.selectbox("Plant ID", get_plant_id(
+            conn), key="1")
     with end_col3:
-        plant_2 = st.radio("Plant ID", get_plant_id(
-            conn), horizontal=True, index=0, key="2")
+        plant_2 = st.selectbox("Plant ID", get_plant_id(
+            conn), key="2")
 
     with bottom_container:
         with bottom_col1:

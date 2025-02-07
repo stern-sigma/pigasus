@@ -206,12 +206,9 @@ def test_temperature_column_exists_and_valid():
     ]
     df = pd.DataFrame(data)
     processed_df = process_temperature_column(df)
-
-    # Assert that temperatures are valid and retained
     assert processed_df['temperature'][0] == 23.5
     assert processed_df['temperature'][1] == 15.8
     assert processed_df['temperature'][2] == 30.1
-
 
 def test_temperature_column_exists():
     raw_data = [
@@ -228,7 +225,6 @@ def test_temperature_column_exists():
     df = transform_and_clean_data(raw_data)
     assert "temperature" in df.columns
 
-
 def test_temperature_column_type():
     raw_data = [
         {
@@ -243,7 +239,6 @@ def test_temperature_column_type():
     ]
     df = transform_and_clean_data(raw_data)
     assert pd.api.types.is_float_dtype(df["temperature"])
-
 
 def test_invalid_temperature_is_nan():
     raw_data = [
@@ -261,7 +256,6 @@ def test_invalid_temperature_is_nan():
     assert df["temperature"][0] != "invalid_temperature"
     assert np.isnan(df["temperature"][0])
 
-
 def test_name_column_exists():
     raw_data = [
         {
@@ -276,7 +270,6 @@ def test_name_column_exists():
     ]
     df = transform_and_clean_data(raw_data)
     assert "name" in df.columns
-
 
 def test_soil_moisture_column_type():
     raw_data = [
@@ -293,7 +286,6 @@ def test_soil_moisture_column_type():
     df = transform_and_clean_data(raw_data)
     assert "soil_moisture" in df.columns
     assert pd.api.types.is_float_dtype(df["soil_moisture"])
-
 
 def test_soil_moisture_valid():
     raw_data = [
@@ -327,7 +319,6 @@ def test_scientific_name_column_exists():
     df = transform_and_clean_data(raw_data)
     assert "scientific_name" in df.columns
 
-
 def test_last_watered_column_datetime():
     raw_data = [
         {
@@ -342,7 +333,6 @@ def test_last_watered_column_datetime():
     ]
     df = transform_and_clean_data(raw_data)
     assert pd.to_datetime(df["last_watered"]).isnull().sum() == 0
-
 
 def test_empty_data_returns_empty_df():
     empty_data = []

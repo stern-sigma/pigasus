@@ -28,7 +28,7 @@ def parse_botanist_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def parse_origin_location(df: pd.DataFrame) -> pd.DataFrame:
-    """Parses the origin_location column into separate latitude, longitude, region, and country columns,
+    """Returns the origin_location parsed into separate latitude, longitude, region, and country columns,
     while excluding the timezone."""
 
     if "origin_location" not in df.columns:
@@ -88,7 +88,7 @@ def clean_image_data(df:pd.DataFrame) -> pd.DataFrame:
 
 
 def format_watered_column(df:pd.DataFrame) -> pd.DataFrame:
-    """Converts the last_watered column to a datetime object with second precision."""
+    """Returns the last_watered column to a datetime object with second precision."""
     if "last_watered" not in df.columns:
         df["last_watered"] = np.nan
     else:
@@ -163,62 +163,3 @@ def transform_and_clean_data(raw_data: list[dict]):
     return df
 
 
-sample = [{
-    "botanist": {
-        "email": "carl.linnaeus@lnhm.co.uk",
-        "name": "Carl Linnaeus",
-        "phone": "(146)994-1635x35992"
-    },
-    "images": {
-        "license": 45,
-        "license_name": "Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)",
-        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/deed.en",
-        "medium_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/medium/2560px-Epipremnum_aureum_31082012.jpg",
-        "original_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/og/2560px-Epipremnum_aureum_31082012.jpg",
-        "regular_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/regular/2560px-Epipremnum_aureum_31082012.jpg",
-        "small_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/small/2560px-Epipremnum_aureum_31082012.jpg",
-        "thumbnail": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/thumbnail/2560px-Epipremnum_aureum_31082012.jpg"
-    },
-    "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
-    "name": "Epipremnum Aureum",
-    "origin_location": [
-        "-19.32556",
-        "-41.25528",
-        "Resplendor",
-        "BR",
-        "America/Sao_Paulo"
-    ],
-    "plant_id": 50,
-    "recording_taken": "2025-02-06 09:16:49",
-    "scientific_name": [
-        "Epipremnum aureum"
-    ],
-    "soil_moisture": 32.985887107454,
-    "temperature": 13.1473300457849
-},
-    {
-    "botanist": {
-        "email": "gertrude.jekyll@lnhm.co.uk",
-        "name": "Gertrude Jekyll",
-        "phone": "001-481-273-3691x127"
-    },
-    "images": None,
-    "last_watered": "Thu, 06 Feb 2025 14:04:23 GMT",
-    "name": "Begonia",
-    "origin_location": [
-        "33.95015",
-        "-118.03917",
-        "South Whittier",
-        "US",
-        "America/Los_Angeles"
-    ],
-    "plant_id": 45,
-    "recording_taken": "2025-02-06 20:44:13",
-    "scientific_name": [
-        "Begonia 'Art Hodes'"
-    ],
-    "soil_moisture": 76.7981688336557,
-    "temperature": 9.08020763101348
-}]
-
-print(transform_and_clean_data(sample).sample().T)

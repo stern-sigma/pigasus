@@ -46,5 +46,5 @@ To install dependencies, run the following in your terminal:
   - **Needs Watering**: Plant has not been watered in >= 6 days
   - **Watered Recently**: Plant has been watered in last 5 days
 
-- A plant is **healthy** if it is within the stated metrics, and **unhealthy** otherwise
+- A plant is **healthy** if it is within the stated metrics, and **unhealthy** otherwise.
 

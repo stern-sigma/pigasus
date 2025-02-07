@@ -1,13 +1,13 @@
 """Script to present plant data on streamlit dashboard."""
+
 from os import environ
 from dotenv import load_dotenv
 import streamlit as st
-import plotly_express as px
 
 from manager_graphs import botanist_reading_bar_chart, botanist_pie_chart, count_days_since_watered, botanist_plant_reading_count
 
 
-def get_connection():
+def get_connection() -> st.connection:
     """Establishes streamlit connection to database."""
     return st.connection("sql", host=environ["DB_HOST"], port=environ["DB_PORT"],
                          database=environ["DB_NAME"], username=environ["DB_USER"],

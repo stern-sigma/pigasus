@@ -1,10 +1,8 @@
 """Module of graphs to be used in the dashboard."""
 
-import streamlit as st
 import plotly_express as px
 
 
-# Main dashboard graphs
 def watering_pie_chart(conn):
     """Returns a pie chart displaying plant watering data."""
     q = """

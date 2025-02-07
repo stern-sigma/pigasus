@@ -1,8 +1,5 @@
 """Module of graphs to be used in the manager's dashboard."""
 
-from dotenv import load_dotenv
-from os import environ
-import streamlit as st
 import plotly_express as px
 
 

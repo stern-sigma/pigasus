@@ -52,7 +52,7 @@ CREATE TABLE alpha.image (
 CREATE TABLE alpha.plant (
     plant_id INT PRIMARY KEY,
     location_id INT NOT NULL,
-    scientific_name VARCHAR(30),
+    scientific_name VARCHAR(100),
     image_id INT,
     common_name VARCHAR(30) NOT NULL,
     FOREIGN KEY (image_id) REFERENCES alpha.image(image_id),

@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "pipeline_lambda_permissions" {
       "ec2:DescribeSecurityGroups",
       "ec2:DescribeSubnets",
       "ec2:DescribeVpcs",
-      "ec2:getSecrutiyGroupForVpc"
+      "ec2:getSecurityGroupForVpc"
     ]
 
     resources = [

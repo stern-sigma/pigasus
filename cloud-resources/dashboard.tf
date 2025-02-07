@@ -52,7 +52,7 @@ resource "aws_ecs_task_definition" "dashboard" {
   container_definitions = <<TASK_DEFINITION
   [
     {
-      "name": "pigasus-dahsboard",
+      "name": "pigasus-dashboard",
       "image": "${aws_ecr_repository.dashboard_ecr.repository_url}:latest",
       "cpu": 256,
       "memory": 512,
@@ -108,5 +108,52 @@ resource "aws_ecs_task_definition" "dashboard" {
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture = "X86_64"
+  }
+}
+
+resource "aws_lb" "dashboard" {
+  name = "pigasus-dashboard"
+  internal = false
+  load_balancer_type = "network"
+  security_groups = [aws_security_group.dashboard.id]
+  subnets = var.public_subnet_ids
+  enable_deletion_protection = false
+}
+
+resource "aws_lb_target_group" "dashboard" {
+  name        = "pigasus-dashboard"
+  target_type = "ip"
+  port        = 8501
+  protocol    = "TCP"
+  vpc_id      = data.aws_vpc.c15-vpc.id
+}
+
+resource "aws_lb_listener" "dashboard_listener" {
+  load_balancer_arn = aws_lb.dashboard.arn
+  port              = 8501
+  protocol          = "TCP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.dashboard.arn
+  }
+}
+
+
+resource "aws_ecs_service" "dashboard" {
+  name = "pigasus-dashboard"
+  cluster = var.cluster_arn
+  task_definition = aws_ecs_task_definition.dashboard.id 
+  force_delete = true 
+  launch_type = "FARGATE"
+  desired_count = 1 
+  network_configuration {
+    subnets = var.public_subnet_ids
+    security_groups = [aws_security_group.dashboard.id]
+    assign_public_ip = true
+  }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.dashboard.arn 
+    container_name = "pigasus-dashboard"
+    container_port = 8501
   }
 }

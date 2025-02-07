@@ -53,7 +53,7 @@ def moisture_pie_chart(_conn: connection):
         SELECT CASE
             WHEN soil_moisture < 18 THEN 'Below Ideal Soil Moisture'
             WHEN soil_moisture > 60 THEN 'Above Ideal Soil Moisture'
-            WHEN soil_moisture BETWEEN 18 AND 60 THEN 'Ideal Soil Moisture' 
+            WHEN soil_moisture BETWEEN 18 AND 90 THEN 'Ideal Soil Moisture' 
             END AS status
         FROM alpha.reading
     )
@@ -131,7 +131,7 @@ def soil_moisture_line_graph(_conn: connection, plant: str):
                     y="Average Soil Moisture")
     graph.add_hline(y=18, line_dash="dash", line_color="red",
                     label={"text": "Min Moisture", "textposition": "end"})
-    graph.add_hline(y=60, line_dash="dash", line_color="red")
+    graph.add_hline(y=90, line_dash="dash", line_color="red")
     return graph
 
 
@@ -141,7 +141,7 @@ def healthy_plant_count(_conn: connection):
     q = """
     SELECT COUNT(*) as count FROM alpha.reading
     WHERE temperature BETWEEN 13 AND 32
-    AND soil_moisture BETWEEN 18 AND 60
+    AND soil_moisture BETWEEN 18 AND 90
     AND DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP) BETWEEN 3 AND 5;
     """
 
@@ -155,7 +155,7 @@ def at_risk_plant_count(_conn: connection):
     q = """
     SELECT COUNT(*) as count FROM alpha.reading
     WHERE temperature NOT BETWEEN 13 AND 32
-    AND soil_moisture NOT BETWEEN 18 AND 60
+    AND soil_moisture NOT BETWEEN 18 AND 90
     AND DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP) NOT BETWEEN 3 AND 5;
     """
 

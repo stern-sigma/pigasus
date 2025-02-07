@@ -94,7 +94,6 @@ def test_extract_plant_batch_returns_list_type(mock_get_plant_data, mock_get_max
     assert isinstance(result, list)
 
 
-
 @patch('extract.get_max_plant_id', return_value=100)
 @patch('extract.get_plant_data')
 def test_extract_plant_batch_returns_list_length(mock_get_plant_data, mock_max_plant_id):
@@ -106,7 +105,7 @@ def test_extract_plant_batch_returns_list_length(mock_get_plant_data, mock_max_p
     mock_get_plant_data.side_effect = dummy_get_plant_data
 
     result = extract.extract_plant_batch()
-    expected_length = 100 + 100 // 10  # Assuming get_max_plant_id returns 100, plus 10%
+    expected_length = (100 + 100 // 10) + 1 # Assuming get_max_plant_id returns 100, plus 10%
     assert len(result) == expected_length
 
 

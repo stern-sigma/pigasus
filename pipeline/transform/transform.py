@@ -166,5 +166,8 @@ def transform_and_clean_data(raw_data: list[dict]):
     df = parse_origin_location(df)
     df = capitalise_plant_name(df)
     df = process_temperature_column(df)
+    # Convert all np.nan values to None so that they are passed as SQL NULL
+    df = df.where(pd.notnull(df), None)
     return df
+
 

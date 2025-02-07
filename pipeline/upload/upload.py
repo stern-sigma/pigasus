@@ -170,50 +170,6 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None
     conn.commit()
 
 
-def upload_readings(conn: pymssql.Connection, data: pd.DataFrame) -> None:
-    cursor = conn.cursor()
-
-    for index, row in data.iterrows():
-        # Extract necessary fields from the row
-        botanist_name = row['botanist_name']
-        plant_name = row['name']
-        soil_moisture = row['soil_moisture']
-        temperature = row['temperature']
-        last_watered = row['last_watered']
-        recording_taken = row['recording_taken']
-        # Find botanist_id
-        cursor.execute(
-            "SELECT botanist_id FROM alpha.botanist WHERE name = %s", (botanist_name,))
-        botanist_id_result = cursor.fetchone()
-        print(botanist_id_result)
-        if botanist_id_result:
-            botanist_id = botanist_id_result[0]
-        else:
-            print(f"Botanist with name {botanist_name} not found.")
-            continue  # Skip this record if botanist is not found
-
-        # Find plant_id
-        cursor.execute(
-            "SELECT plant_id FROM alpha.plant WHERE common_name = %s", (plant_name,))
-        plant_id_result = cursor.fetchone()
-
-        if plant_id_result:
-            plant_id = plant_id_result[0]
-        else:
-            print(f"Plant with name {plant_name} not found.")
-            continue  # Skip this record if plant is not found
-
-        # Insert data into reading table
-        cursor.execute("""
-            INSERT INTO alpha.reading (plant_id, soil_moisture, temperature, at, botanist_id, last_watered)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (plant_id, soil_moisture, temperature, recording_taken, botanist_id, last_watered))
-
-    # Commit the transaction after all inserts
-    conn.commit()
-
-    cursor.close()
-    print(f"Uploaded {len(data)} readings to the database.")
 
 
 if __name__ == '__main__':
@@ -245,5 +201,4 @@ if __name__ == '__main__':
 
     print(new_plant_data)
     upload_new_plants_with_location(connection, new_plant_data)
-    upload_readings(connection, new_plant_data)
     connection.close()

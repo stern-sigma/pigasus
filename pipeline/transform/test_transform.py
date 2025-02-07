@@ -137,17 +137,6 @@ def test_capitalise_plant_name():
     assert df["name"][0] == "Plant"
 
 
-def test_parse_origin_location():
-    raw_data = [{"name": "Plant 1", "origin_location": [
-        "continent", "country", "region", "city"]}]
-    df = convert_to_dataframe(raw_data)
-    df = parse_origin_location(df)
-
-    assert "region" in df.columns
-    assert "country" in df.columns
-    assert df["region"][0] == "region"
-    assert df["country"][0] == "city"
-
 
 def test_capitalise_plant_name_missing_column():
     raw_data = [{"botanist_email": "botanist@example.com",

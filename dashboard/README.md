@@ -33,7 +33,7 @@ To install dependencies, run the following in your terminal:
   `streamlit run dashboard.py`
 
 ## Additional Information ❓
-- The following terms have been decided by the described metrics.
+The following terms have been decided by the described metrics.
 - The ideal temperature range for photosynthesis and respiration is **between 15-30°C**. 
   - **Above Ideal Temperature**: > 32°C
   - **Below Ideal Temperature**: < 13°C
@@ -47,4 +47,6 @@ To install dependencies, run the following in your terminal:
   - **Watered Recently**: Plant has been watered in last 5 days
 
 - A plant is **healthy** if it is within the stated metrics, and **unhealthy** otherwise.
+
+References for [temperature](https://pmc.ncbi.nlm.nih.gov/articles/PMC152220/), [Soil Moisture](https://www.acurite.com/blogs/acurite-in-your-home/soil-moisture-guide-for-plants-and-vegetables) and [Watering Frequency](https://www.hedgesdirect.co.uk/advice/how-to-water-plants)
 

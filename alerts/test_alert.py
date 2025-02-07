@@ -1,10 +1,10 @@
 import datetime
+import json
 from unittest.mock import MagicMock, patch
 
 
 from alert import (
     is_abnormal,
-    fetch_readings,
     generate_email,
     lambda_handler,
 )
@@ -89,9 +89,12 @@ def test_lambda_handler(mock_get_connection, mock_fetch_readings, mock_load_dote
 
     result = lambda_handler({}, {})
 
+    # Parse the JSON string returned by lambda_handler
+    alerts = json.loads(result)
+
     # Only plant 1 should generate an alert...
-    assert len(result) == 1
-    alert = result[0]
+    assert len(alerts) == 1
+    alert = alerts[0]
     assert "Alert for Plant ID: 1" in alert["email"]
     assert alert["email_address"] == "eg1@example.com"
     dummy_conn.close.assert_called_once()

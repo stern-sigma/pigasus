@@ -3,6 +3,7 @@ Will generate a basic email with all of the require info."""
 # pylint: disable=no-member
 
 import os
+import json
 import datetime
 from typing import List, Dict, Any
 import pymssql
@@ -129,7 +130,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> List[Dict[str, str]]:
                     "email_address": email_address
                 })
 
-        return alerts
+        return json.dumps(alerts)
 
     finally:
         conn.close()

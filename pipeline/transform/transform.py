@@ -66,13 +66,18 @@ def clean_scientific_name(df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def clean_image_data(df:pd.DataFrame) -> pd.DataFrame:
+def clean_image_data(df: pd.DataFrame) -> pd.DataFrame:
     """Returns the images column into separate columns, creating them even if 'images' does not exist."""
 
     if "images" not in df.columns:
         df["images"] = None
+
+    # Extracting and converting 'image_license' to an integer
     df['image_license'] = df['images'].apply(lambda x: x.get(
         'license') if isinstance(x, dict) and x.get('license') is not None else np.nan)
+    df['image_license'] = pd.to_numeric(
+        df['image_license'], errors='coerce', downcast='integer').fillna(0).astype(int)
+
     df['image_license_name'] = df['images'].apply(lambda x: x.get(
         'license_name') if isinstance(x, dict) and x.get('license_name') is not None else np.nan)
     df['image_license_url'] = df['images'].apply(lambda x: x.get(
@@ -82,6 +87,7 @@ def clean_image_data(df:pd.DataFrame) -> pd.DataFrame:
     df = df.drop(columns=['images'])
     df['image_original_url'] = df['image_original_url'].apply(
         lambda x: x if isinstance(x, str) and (x.startswith('http://') or x.startswith('https://')) else np.nan)
+
     return df
 
 
@@ -161,5 +167,4 @@ def transform_and_clean_data(raw_data: list[dict]):
     df = capitalise_plant_name(df)
     df = process_temperature_column(df)
     return df
-
 

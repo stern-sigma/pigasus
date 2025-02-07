@@ -200,3 +200,37 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None
         cursor.execute(drop_temp_table_sql)
 
     conn.commit()
+
+
+def upload_reading_data(conn: pymssql.Connection, batch_data:pd.DataFrame) -> None:
+    """
+    Uploads readings onto the reading table on the database from the dataframe.
+    """
+
+    cursor = conn.cursor()
+    for _, row in batch_data.iterrows():
+        cursor.execute("""
+            SELECT plant_id
+            FROM alpha.plant
+            WHERE common_name = %s
+        """, (row['name']))
+        plant_id = cursor.fetchone()[0]
+        cursor.execute("""
+            SELECT botanist_id
+            FROM alpha.botanist
+            WHERE email = %s
+        """, (row['botanist_email'],))
+        botanist_id = cursor.fetchone()[0]
+        cursor.execute("""
+            INSERT INTO alpha.reading (plant_id, soil_moisture, temperature, at, botanist_id, last_watered)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            plant_id,
+            row['soil_moisture'],
+            row['temperature'],
+            row['recording_taken'],
+            botanist_id,
+            row['last_watered']
+        ))
+    conn.commit()
+    cursor.close()

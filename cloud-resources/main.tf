@@ -10,7 +10,7 @@ terraform {
 provider "aws" {
   region     = "eu-west-2"
   access_key = var.access_key
-  secret_key = var.my-secret-key
+  secret_key = var.secret_access_key
 }
 
 data "aws_vpc" "c15-vpc" {
@@ -74,4 +74,5 @@ resource "aws_security_group" "pipeline_lambda_security_group" {
     }
   }
 }
+
 

@@ -15,5 +15,5 @@ output "dashboard_ecr_url" {
 }
 
 output "load_balancer_url" {
-  value = aws_alb.dashboard.dns_name
+  value = aws_lb.dashboard.dns_name
 }

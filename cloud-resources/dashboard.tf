@@ -52,7 +52,7 @@ resource "aws_ecs_task_definition" "dashboard" {
   container_definitions = <<TASK_DEFINITION
   [
     {
-      "name": "pigasus-dahsboard",
+      "name": "pigasus-dashboard",
       "image": "${aws_ecr_repository.dashboard_ecr.repository_url}:latest",
       "cpu": 256,
       "memory": 512,
@@ -111,10 +111,10 @@ resource "aws_ecs_task_definition" "dashboard" {
   }
 }
 
-resource "aws_alb" "dashboard" {
+resource "aws_lb" "dashboard" {
   name = "pigasus-dashboard"
   internal = false
-  load_balancer_type = "application"
+  load_balancer_type = "network"
   security_groups = [aws_security_group.dashboard.id]
   subnets = var.public_subnet_ids
   enable_deletion_protection = false
@@ -122,11 +122,22 @@ resource "aws_alb" "dashboard" {
 
 resource "aws_lb_target_group" "dashboard" {
   name        = "pigasus-dashboard"
-  target_type = "alb"
-  port        = 80
+  target_type = "ip"
+  port        = 8501
   protocol    = "TCP"
   vpc_id      = data.aws_vpc.c15-vpc.id
 }
+
+resource "aws_lb_listener" "dashboard_listener" {
+  load_balancer_arn = aws_lb.dashboard.arn
+  port              = 8501
+  protocol          = "TCP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.dashboard.arn
+  }
+}
+
 
 resource "aws_ecs_service" "dashboard" {
   name = "pigasus-dashboard"

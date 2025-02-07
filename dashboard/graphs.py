@@ -86,13 +86,15 @@ def plant_temperature_line_graph(conn: connection, plant: str):
     """Returns a line graph showing a plant's 24 hour temperature history."""
 
     q = """
-    SELECT ROUND(AVG(r.temperature),2) as 'Average Temperature', DATE_BUCKET(MINUTE, 5, r.AT) as 'Time Recorded'
+    SELECT 
+    ROUND(AVG(r.temperature),2) as 'Average Temperature',
+    DATEADD(MINUTE,(DATEDIFF(MINUTE, '1990-01-01T00:00:00', r.at) / 5) * 5,'1990-01-01T00:00:00') AS 'Time Recorded'
     FROM alpha.reading AS r
     JOIN alpha.plant AS p
     ON p.plant_id = r.plant_id
     WHERE p.plant_id = :plant_id
-    AND r.AT >= DATEADD(DAY, -1, current_timestamp)
-    GROUP BY r.AT
+    GROUP BY
+    (DATEDIFF(MINUTE, '1990-01-01T00:00:00', r.at) / 5)
     """
 
     plant_temperature_df = conn.query(q, params={'plant_id': int(plant)})
@@ -106,15 +108,17 @@ def plant_temperature_line_graph(conn: connection, plant: str):
 
 def soil_moisture_line_graph(conn: connection, plant: str):
     """Returns a line graph showing a plant's 24 hour soil moisture history"""
+
     q = """
-    SELECT ROUND(AVG(r.soil_moisture),2) as 'Average Soil Moisture', DATE_BUCKET(MINUTE, 5, r.AT) as 'Time Recorded'
+    SELECT ROUND(AVG(r.soil_moisture),2) as 'Average Soil Moisture',
+    DATEADD(MINUTE,(DATEDIFF(MINUTE, '1990-01-01T00:00:00', r.at) / 5) * 5,'1990-01-01T00:00:00') AS 'Time Recorded'
     FROM alpha.reading AS r
     JOIN alpha.plant AS p
     ON p.plant_id = r.plant_id
     WHERE p.plant_id = :plant_id
-    AND r.AT >= DATEADD(DAY, -1, current_timestamp)
-    GROUP BY r.AT
+    GROUP BY (DATEDIFF(MINUTE, '1990-01-01T00:00:00', r.at) / 5)
     """
+
     plant_soil_moisture_df = conn.query(q, params={'plant_id': int(plant)})
     graph = px.line(plant_soil_moisture_df, x="Time Recorded",
                     y="Average Soil Moisture")

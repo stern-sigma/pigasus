@@ -99,7 +99,8 @@ def clean_image_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def format_watered_column(df:pd.DataFrame) -> pd.DataFrame:
-    """Returns the datafram with the last_watered column converted to a datetime object with second precision."""
+    """Returns the datafram with the last_watered column
+    converted to a datetime object with second precision."""
     if "last_watered" not in df.columns:
         df["last_watered"] = np.nan
     else:
@@ -132,13 +133,15 @@ def capitalise_plant_name(df:pd.DataFrame) -> pd.DataFrame:
         df["name"] = np.nan
     else:
         df["name"] = df["name"].apply(
-            lambda x: re.sub(r"[^a-zA-Z\s]", "", x.strip()).title() if isinstance(x, str) else np.nan)
+            lambda x: re.sub(r"[^a-zA-Z\s]", "", x.strip()).title()
+              if isinstance(x, str) else np.nan)
 
     return df
 
 
 def validate_soil_moisture(df:pd.DataFrame) -> pd.DataFrame:
-    """Returns the soil_moisture column. Checks it exists, makes negative values absolute, and handles invalid or missing values."""
+    """Returns the soil_moisture column. Checks it exists,
+    makes negative values absolute, and handles invalid or missing values."""
     if "soil_moisture" not in df.columns:
         df["soil_moisture"] = np.nan
     df["soil_moisture"] = df["soil_moisture"].apply(

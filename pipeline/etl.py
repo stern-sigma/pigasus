@@ -4,6 +4,8 @@ This script is runnable as a single command.
 First we will test this pipeline locally, then we will make it a Lambda handler and dockerise it.
 It will be run once a minute by a scheduler.
 """
+# pylint: disable=broad-exception-caught
+
 import sys
 import logging
 from dotenv import load_dotenv

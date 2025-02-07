@@ -1,3 +1,10 @@
+variable "access_key" {
+  type = string
+}
+variable "secret_access_key" {
+  type = string
+}
+
 variable "AWS_VPC_ID" {
   type = string
 }

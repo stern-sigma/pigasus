@@ -48,6 +48,16 @@ def list_botanist_names(conn):
     return names
 
 
+def list_plant_names(conn) -> list:
+    """Returns list of plant IDs from the database"""
+    q = """
+    SELECT DISTINCT(scientific_name) FROM alpha.plant
+    """
+    plant_name_df = conn.query(q)
+    plant_names = plant_name_df["scientific_name"].to_list()
+    return plant_names
+
+
 def main():
     """Runs the streamlit dashboard"""
     st.set_page_config(layout="wide")
@@ -55,8 +65,12 @@ def main():
     conn = get_connection()
     header = st.container()
     top_container = st.container()
+    bottom_container = st.container()
     col1, col2, col3 = st.columns([0.2, 0.4, 0.4], border=True)
+    bcol1, bcol2, bcol3 = st.columns([0.2, 0.4, 0.4], border=True)
 
+    with header:
+        st.title("**MANAGER DASHBOARD**")
     with top_container:
         with col1:
             st.metric("Number of Botanists", botanist_count(conn))
@@ -64,7 +78,21 @@ def main():
                       botanist_with_most_readings(conn))
         with col2:
             st.plotly_chart(botanist_reading_bar_chart(conn))
-            st.plotly_chart(botanist_plant_reading_count(conn))
+        with col3:
+            chart_placeholder = st.empty()
+            plant_name = st.multiselect("Plant Names", list_plant_names(
+                conn), default=list_plant_names(conn))
+            if plant_name == []:
+                plant_name = list_plant_names(conn)
+            chart_placeholder.plotly_chart(
+                botanist_plant_reading_count(conn, plant_name))
+        with bottom_container:
+            with bcol1:
+                botanists = st.radio("Botanists", list_botanist_names(conn))
+            with bcol2:
+                st.plotly_chart(botanist_pie_chart(conn, botanists))
+            with bcol3:
+                st.plotly_chart(count_days_since_watered(conn, botanists))
 
 
 if __name__ == "__main__":

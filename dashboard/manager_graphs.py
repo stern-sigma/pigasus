@@ -48,7 +48,7 @@ def count_days_since_watered(conn, botanist):
     """Returns bar chart showing count of days since last watered per botanist."""
     q = """
     SELECT COUNT(DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP)) AS count, 
-    CAST(DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP) AS VARCHAR) AS 'Days Since Last Watered'
+    DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP) AS 'Days Since Last Watered'
     FROM alpha.reading AS r
     JOIN alpha.botanist AS b
     ON b.botanist_id = r.botanist_id
@@ -58,10 +58,11 @@ def count_days_since_watered(conn, botanist):
     bar_chart_df = conn.query(q, params={"botanist_name": botanist})
     bar_chart = px.bar(bar_chart_df, y="count",
                        x="Days Since Last Watered", title=f"Count Number of Days Since Last Watered for {botanist}")
+    bar_chart.update_layout(xaxis_type="category")
     return bar_chart
 
 
-def botanist_plant_reading_count(conn):
+def botanist_plant_reading_count(conn, plant_name):
     """Returns a bar chart showing how many readings a botanist has for a certain plant."""
 
     q = """
@@ -70,10 +71,12 @@ def botanist_plant_reading_count(conn):
     ON b.botanist_id = r.botanist_id
     JOIN alpha.plant AS p
     ON p.plant_id = r.plant_id
+    WHERE p.scientific_name IN :plant_name
     GROUP BY b.name, p.scientific_name
     """
 
-    botanist_plant_reading_df = conn.query(q)
+    botanist_plant_reading_df = conn.query(
+        q, params={"plant_name": plant_name})
     bar_chart = px.bar(botanist_plant_reading_df,
                        x="scientific_name", y="count", color="name", barmode="group")
     return bar_chart

@@ -2,3 +2,4 @@ streamlit
 python-dotenv
 sqlalchemy
 plotly_express
+pymssql

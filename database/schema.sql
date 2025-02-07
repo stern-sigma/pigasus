@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS alpha.country;
 DROP TABLE IF EXISTS alpha.botanist;
 DROP TABLE IF EXISTS alpha.license;
 
+
 CREATE TABLE alpha.botanist (
     botanist_id SMALLINT PRIMARY KEY IDENTITY(1,1),
     email VARCHAR(20),
@@ -46,15 +47,11 @@ CREATE TABLE alpha.image (
     image_id INT PRIMARY KEY IDENTITY(1,1),
     license_id SMALLINT,
     original_url TEXT NOT NULL,
-    medium_url TEXT,
-    small_url TEXT,
-    regular_url TEXT,
-    thumbnail_url TEXT,
     FOREIGN KEY (license_id) REFERENCES alpha.license(license_id)
 );
 
-CREATE TABLE alpha.plant (
-    plant_id INT PRIMARY KEY IDENTITY(1,1),
+CREATE TABLE alpha.plant(
+    plant_id INT PRIMARY KEY,
     location_id INT NOT NULL,
     scientific_name VARCHAR(30),
     image_id INT,

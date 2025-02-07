@@ -76,14 +76,14 @@ def test_format_dataframe_expected_output(old_data):
         format_dataframe(new_old_df)
 
 
-@patch("datetime.date")
+@patch("long_term.date")
 @moto.mock_aws
 def test_upload_bucket(mock_date, tmp_path):
     """Tests that files are uploaded to the bucket."""
     temp_file = tmp_path/"data.parquet"
     temp_file.write_text("fake_data", encoding="utf-8")
 
-    mock_date.return_value = date(2025, 2, 6)
+    mock_date.today.return_value = date(2025, 2, 6)
 
     conn = boto3.resource("s3", region_name="eu-west-2")
     conn.create_bucket(Bucket="plant", CreateBucketConfiguration={

@@ -2,9 +2,11 @@
 
 import plotly_express as px
 from streamlit import connection
+import streamlit as st
 
 
-def watering_pie_chart(conn: connection):
+@st.cache_data
+def watering_pie_chart(_conn: connection):
     """Returns a pie chart displaying plant watering data."""
     q = """
     WITH watered AS (
@@ -18,11 +20,12 @@ def watering_pie_chart(conn: connection):
     GROUP BY status;
     """
 
-    watering_status_df = conn.query(q)
+    watering_status_df = _conn.query(q)
     return px.pie(watering_status_df, values="count", names="status", title="Proportion of Plants Recently Watered")
 
 
-def temperature_pie_chart(conn: connection):
+@st.cache_data
+def temperature_pie_chart(_conn: connection):
     """Returns a pie chart displaying plant temperature data."""
     q = """
     with temperatures AS (
@@ -38,11 +41,12 @@ def temperature_pie_chart(conn: connection):
     GROUP BY status;
     """
 
-    temperature_status_df = conn.query(q)
+    temperature_status_df = _conn.query(q)
     return px.pie(temperature_status_df, values="count", names="status", title="Proportion of Plants Within Ideal Temperature Range")
 
 
-def moisture_pie_chart(conn: connection):
+@st.cache_data
+def moisture_pie_chart(_conn: connection):
     """Returns a pie chart displaying plant moisture data."""
     q = """
     with moisture AS (
@@ -57,11 +61,12 @@ def moisture_pie_chart(conn: connection):
     FROM moisture
     GROUP BY status;
     """
-    soil_moisture_df = conn.query(q)
+    soil_moisture_df = _conn.query(q)
     return px.pie(soil_moisture_df, values="count", names="status", title="Proportion of Plants With Ideal Soil Moisture")
 
 
-def last_watered_bar_chart(conn: connection):
+@st.cache_data
+def last_watered_bar_chart(_conn: connection):
     """Returns a bar chart displaying number of plants last watered within a timeframe."""
     q = """
         SELECT CASE 
@@ -76,13 +81,14 @@ def last_watered_bar_chart(conn: connection):
             END;
 
     """
-    last_watered_df = conn.query(q)
+    last_watered_df = _conn.query(q)
     chart = px.bar(last_watered_df, x="Days Since Watered", y="count")
     chart.update_layout(xaxis={"type": "category"})
     return chart
 
 
-def plant_temperature_line_graph(conn: connection, plant: str):
+@st.cache_data
+def plant_temperature_line_graph(_conn: connection, plant: str):
     """Returns a line graph showing a plant's 24 hour temperature history."""
 
     q = """
@@ -97,7 +103,7 @@ def plant_temperature_line_graph(conn: connection, plant: str):
     (DATEDIFF(MINUTE, '1990-01-01T00:00:00', r.at) / 5)
     """
 
-    plant_temperature_df = conn.query(q, params={'plant_id': int(plant)})
+    plant_temperature_df = _conn.query(q, params={'plant_id': int(plant)})
     graph = px.line(plant_temperature_df, x="Time Recorded",
                     y="Average Temperature")
     graph.add_hline(y=13, line_dash="dash", line_color="red", label={
@@ -106,7 +112,8 @@ def plant_temperature_line_graph(conn: connection, plant: str):
     return graph
 
 
-def soil_moisture_line_graph(conn: connection, plant: str):
+@st.cache_data
+def soil_moisture_line_graph(_conn: connection, plant: str):
     """Returns a line graph showing a plant's 24 hour soil moisture history"""
 
     q = """
@@ -119,7 +126,7 @@ def soil_moisture_line_graph(conn: connection, plant: str):
     GROUP BY (DATEDIFF(MINUTE, '1990-01-01T00:00:00', r.at) / 5)
     """
 
-    plant_soil_moisture_df = conn.query(q, params={'plant_id': int(plant)})
+    plant_soil_moisture_df = _conn.query(q, params={'plant_id': int(plant)})
     graph = px.line(plant_soil_moisture_df, x="Time Recorded",
                     y="Average Soil Moisture")
     graph.add_hline(y=18, line_dash="dash", line_color="red",
@@ -128,7 +135,8 @@ def soil_moisture_line_graph(conn: connection, plant: str):
     return graph
 
 
-def healthy_plant_count(conn: connection):
+@st.cache_data
+def healthy_plant_count(_conn: connection):
     """Returns number of healthy plants counted."""
     q = """
     SELECT COUNT(*) as count FROM alpha.reading
@@ -137,11 +145,12 @@ def healthy_plant_count(conn: connection):
     AND DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP) BETWEEN 3 AND 5;
     """
 
-    healthy_plants = conn.query(q)
+    healthy_plants = _conn.query(q)
     return healthy_plants["count"]
 
 
-def at_risk_plant_count(conn: connection):
+@st.cache_data
+def at_risk_plant_count(_conn: connection):
     """Returns number of plants at risk."""
     q = """
     SELECT COUNT(*) as count FROM alpha.reading
@@ -150,5 +159,5 @@ def at_risk_plant_count(conn: connection):
     AND DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP) NOT BETWEEN 3 AND 5;
     """
 
-    at_risk_plants = conn.query(q)
+    at_risk_plants = _conn.query(q)
     return at_risk_plants["count"]

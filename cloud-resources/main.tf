@@ -1,3 +1,18 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region     = "eu-west-2"
+  access_key = var.access_key
+  secret_key = var.my-secret-key
+}
+
 data "aws_vpc" "c15-vpc" {
   id = var.AWS_VPC_ID
 }

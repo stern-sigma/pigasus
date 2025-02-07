@@ -88,7 +88,7 @@ def clean_image_data(df:pd.DataFrame) -> pd.DataFrame:
 
 
 def format_watered_column(df:pd.DataFrame) -> pd.DataFrame:
-    """Returns the last_watered column to a datetime object with second precision."""
+    """Returns the datafram with the last_watered column converted to a datetime object with second precision."""
     if "last_watered" not in df.columns:
         df["last_watered"] = np.nan
     else:

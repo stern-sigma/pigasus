@@ -59,3 +59,7 @@ variable "public_subnet_ids" {
 variable "cluster_arn" {
   type = string
 }
+
+variable "my_email" {
+  type = string
+}

@@ -1,11 +1,15 @@
 """Test functions from upload.py module"""
 
+import pymssql
+from unittest.mock import patch, MagicMock
+import unittest
 import pandas as pd
 from unittest.mock import MagicMock, patch
 
 from upload import (
     get_existing_plant_ids,
-    upload_new_plants_with_location, update_botanists
+    upload_new_plants_with_location, update_botanists,
+    upload_reading_data
 )
 
 def test_get_existing_plant_ids_empty():
@@ -124,6 +128,7 @@ def test_upload_new_plants_with_location_new(mock_get_connection):
 
 
 
+
 def test_create_temp_table_sql():
     "Tests that create_temp_table_sql is called"
     mock_dataframe = pd.DataFrame(
@@ -216,3 +221,4 @@ def test_populate_temp_table():
             (%s, %s, %s)
         ;
     """, seq_of_parameters=[('bar', 'foo', 'baz'), ('ipsum', 'lorem', 'dei')])
+

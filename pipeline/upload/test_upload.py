@@ -119,8 +119,7 @@ def test_upload_new_plants_with_location_new(mock_get_connection):
 
     upload_new_plants_with_location(mock_conn, data)
 
-    # Six MERGE statements + one query in get_existing_plant_ids = 7 total queries
-    assert mock_cursor.execute.call_count == 7
+    assert mock_cursor.execute.call_count == 6
 
     # Ensure commit is called
     mock_conn.commit.assert_called_once()

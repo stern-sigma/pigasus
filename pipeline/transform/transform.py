@@ -7,12 +7,13 @@ def convert_to_dataframe(raw_data:list[dict]):
     """Creates dataframe from data."""
     if not isinstance(raw_data, list):
         raise TypeError("Wrong format!")
-    
+
     return pd.DataFrame(raw_data)
 
 
 def parse_botanist_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Returns botanist data into separate columns, ensuring NaN for missing values without dropping rows."""
+    """Returns botanist data into separate columns,
+    ensuring NaN for missing values without dropping rows."""
 
     if "botanist" not in df.columns:
         df["botanist"] = np.nan
@@ -28,7 +29,8 @@ def parse_botanist_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def parse_origin_location(df: pd.DataFrame) -> pd.DataFrame:
-    """Returns the origin_location parsed into separate latitude, longitude, region, and country columns,
+    """Returns the origin_location parsed into separate latitude,
+    longitude, region, and country columns,
     while excluding the timezone."""
 
     if "origin_location" not in df.columns:
@@ -51,7 +53,8 @@ def parse_origin_location(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def clean_scientific_name(df:pd.DataFrame) -> pd.DataFrame:
-    """Returns the scientific_name column cleaned - transformed into a string and ensured that it is consistent."""
+    """Returns the scientific_name column cleaned - transformed
+    into a string and ensured that it is consistent."""
     if "scientific_name" not in df.columns:
         df['scientific_name'] = np.nan
 
@@ -67,7 +70,8 @@ def clean_scientific_name(df:pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_image_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Returns the images column into separate columns, creating them even if 'images' does not exist."""
+    """Returns the images column into separate columns,
+    creating them even if 'images' does not exist."""
 
     if "images" not in df.columns:
         df["images"] = None
@@ -86,7 +90,8 @@ def clean_image_data(df: pd.DataFrame) -> pd.DataFrame:
         'original_url') if isinstance(x, dict) and x.get('original_url') is not None else np.nan)
     df = df.drop(columns=['images'])
     df['image_original_url'] = df['image_original_url'].apply(
-        lambda x: x if isinstance(x, str) and (x.startswith('http://') or x.startswith('https://')) else np.nan)
+        lambda x: x if isinstance(x, str) and (x.startswith('http://')
+                                               or x.startswith('https://')) else np.nan)
 
     return df
 
@@ -94,7 +99,8 @@ def clean_image_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def format_watered_column(df:pd.DataFrame) -> pd.DataFrame:
-    """Returns the datafram with the last_watered column converted to a datetime object with second precision."""
+    """Returns the datafram with the last_watered column
+    converted to a datetime object with second precision."""
     if "last_watered" not in df.columns:
         df["last_watered"] = np.nan
     else:
@@ -127,13 +133,15 @@ def capitalise_plant_name(df:pd.DataFrame) -> pd.DataFrame:
         df["name"] = np.nan
     else:
         df["name"] = df["name"].apply(
-            lambda x: re.sub(r"[^a-zA-Z\s]", "", x.strip()).title() if isinstance(x, str) else np.nan)
+            lambda x: re.sub(r"[^a-zA-Z\s]", "", x.strip()).title()
+              if isinstance(x, str) else np.nan)
 
     return df
 
 
 def validate_soil_moisture(df:pd.DataFrame) -> pd.DataFrame:
-    """Returns the soil_moisture column. Checks it exists, makes negative values absolute, and handles invalid or missing values."""
+    """Returns the soil_moisture column. Checks it exists,
+    makes negative values absolute, and handles invalid or missing values."""
     if "soil_moisture" not in df.columns:
         df["soil_moisture"] = np.nan
     df["soil_moisture"] = df["soil_moisture"].apply(
@@ -166,5 +174,6 @@ def transform_and_clean_data(raw_data: list[dict]):
     df = parse_origin_location(df)
     df = capitalise_plant_name(df)
     df = process_temperature_column(df)
+    # Convert all np.nan values to None so that they are passed as SQL NULL
+    df = df.where(pd.notnull(df), None)
     return df
-

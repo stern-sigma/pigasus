@@ -66,13 +66,18 @@ def clean_scientific_name(df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def clean_image_data(df:pd.DataFrame) -> pd.DataFrame:
+def clean_image_data(df: pd.DataFrame) -> pd.DataFrame:
     """Returns the images column into separate columns, creating them even if 'images' does not exist."""
 
     if "images" not in df.columns:
         df["images"] = None
+
+    # Extracting and converting 'image_license' to an integer
     df['image_license'] = df['images'].apply(lambda x: x.get(
         'license') if isinstance(x, dict) and x.get('license') is not None else np.nan)
+    df['image_license'] = pd.to_numeric(
+        df['image_license'], errors='coerce', downcast='integer').fillna(0).astype(int)
+
     df['image_license_name'] = df['images'].apply(lambda x: x.get(
         'license_name') if isinstance(x, dict) and x.get('license_name') is not None else np.nan)
     df['image_license_url'] = df['images'].apply(lambda x: x.get(
@@ -82,6 +87,7 @@ def clean_image_data(df:pd.DataFrame) -> pd.DataFrame:
     df = df.drop(columns=['images'])
     df['image_original_url'] = df['image_original_url'].apply(
         lambda x: x if isinstance(x, str) and (x.startswith('http://') or x.startswith('https://')) else np.nan)
+
     return df
 
 
@@ -161,63 +167,3 @@ def transform_and_clean_data(raw_data: list[dict]):
     df = process_temperature_column(df)
     return df
 
-
-sample = [{
-    "botanist": {
-        "email": "carl.linnaeus@lnhm.co.uk",
-        "name": "Carl Linnaeus",
-        "phone": "(146)994-1635x35992"
-    },
-    "images": {
-        "license": 45,
-        "license_name": "Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)",
-        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/deed.en",
-        "medium_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/medium/2560px-Epipremnum_aureum_31082012.jpg",
-        "original_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/og/2560px-Epipremnum_aureum_31082012.jpg",
-        "regular_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/regular/2560px-Epipremnum_aureum_31082012.jpg",
-        "small_url": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/small/2560px-Epipremnum_aureum_31082012.jpg",
-        "thumbnail": "https://perenual.com/storage/species_image/2773_epipremnum_aureum/thumbnail/2560px-Epipremnum_aureum_31082012.jpg"
-    },
-    "last_watered": "Wed, 05 Feb 2025 14:03:04 GMT",
-    "name": "Epipremnum Aureum",
-    "origin_location": [
-        "-19.32556",
-        "-41.25528",
-        "Resplendor",
-        "BR",
-        "America/Sao_Paulo"
-    ],
-    "plant_id": 50,
-    "recording_taken": "2025-02-06 09:16:49",
-    "scientific_name": [
-        "Epipremnum aureum"
-    ],
-    "soil_moisture": 32.985887107454,
-    "temperature": 13.1473300457849
-},
-    {
-    "botanist": {
-        "email": "gertrude.jekyll@lnhm.co.uk",
-        "name": "Gertrude Jekyll",
-        "phone": "001-481-273-3691x127"
-    },
-    "images": None,
-    "last_watered": "Thu, 06 Feb 2025 14:04:23 GMT",
-    "name": "Begonia",
-    "origin_location": [
-        "33.95015",
-        "-118.03917",
-        "South Whittier",
-        "US",
-        "America/Los_Angeles"
-    ],
-    "plant_id": 45,
-    "recording_taken": "2025-02-06 20:44:13",
-    "scientific_name": [
-        "Begonia 'Art Hodes'"
-    ],
-    "soil_moisture": 76.7981688336557,
-    "temperature": 9.08020763101348
-}]
-
-print(transform_and_clean_data(sample).sample().T)

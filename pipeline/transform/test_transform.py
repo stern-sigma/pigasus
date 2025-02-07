@@ -98,12 +98,12 @@ def test_clean_image_data_columns():
 
 
 def test_clean_image_data_values():
-    raw_data = [{"name": "Plant 1", "images": {"license": "CC0", "license_name": "Public Domain",
+    raw_data = [{"name": "Plant 1", "images": {"license": 45, "license_name": "Public Domain",
                                                "license_url": "http://example.com", "original_url": "http://example.com/image.jpg"}}]
     df = convert_to_dataframe(raw_data)
     df = clean_image_data(df)
 
-    assert df["image_license"][0] == "CC0"
+    assert df["image_license"][0] == 45
     assert df["image_license_name"][0] == "Public Domain"
     assert df["image_license_url"][0] == "http://example.com"
     assert df["image_original_url"][0] == "http://example.com/image.jpg"

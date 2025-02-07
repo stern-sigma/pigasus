@@ -46,10 +46,6 @@ CREATE TABLE alpha.image (
     image_id INT PRIMARY KEY IDENTITY(1,1),
     license_id SMALLINT,
     original_url TEXT NOT NULL,
-    medium_url TEXT,
-    small_url TEXT,
-    regular_url TEXT,
-    thumbnail_url TEXT,
     FOREIGN KEY (license_id) REFERENCES alpha.license(license_id)
 );
 

@@ -11,6 +11,16 @@ variable "pipeline_lambda_security_group_ports" {
   ]
 }
 
+variable "dashboard_sg_ports" {
+  type = list(number)
+  default = [
+    80,
+    443,
+    1433,
+    8501
+  ]
+}
+
 variable "DB_HOST" {
   type = string
 }

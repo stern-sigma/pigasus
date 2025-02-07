@@ -14,6 +14,6 @@ output "dashboard_ecr_url" {
   value = aws_ecr_repository.dashboard_ecr.repository_url
 }
 
-output "load_balancer_url" {
+output "dashboard_load_balancer_url" {
   value = aws_lb.dashboard.dns_name
 }

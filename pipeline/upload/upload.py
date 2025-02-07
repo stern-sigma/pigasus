@@ -203,18 +203,18 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None
 
 
 def upload_reading_data(conn: pymssql.Connection, batch_data:pd.DataFrame) -> None:
-    cursor = conn.cursor()
+    """
+    Uploads readings onto the reading table on the database from the dataframe.
+    """
 
+    cursor = conn.cursor()
     for _, row in batch_data.iterrows():
-        # Get the plant_id from the plant table based on scientific_name and common_name
         cursor.execute("""
             SELECT plant_id
             FROM alpha.plant
             WHERE common_name = %s
         """, (row['name']))
         plant_id = cursor.fetchone()[0]
-
-        # Get the botanist_id from the botanist table based on email
         cursor.execute("""
             SELECT botanist_id
             FROM alpha.botanist

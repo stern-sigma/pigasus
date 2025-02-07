@@ -28,7 +28,7 @@ def extract_plant_batch() -> list[dict]:
     logger.info("Data for %d plants is available...", max_plant_id)
     max_plant_id += max_plant_id // 10  # Adds 10% leeway to account for missing plants
 
-    for plant_id in range(max_plant_id + 1):
+    for plant_id in range(1, max_plant_id):
         try:
             plant_data = get_plant_data(base_url, plant_id)
             plant_data_list.append(plant_data)

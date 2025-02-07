@@ -6,7 +6,6 @@ import os
 import math
 import pymssql
 import pandas as pd
-from dotenv import load_dotenv
 
 def sanitize(val):
     """
@@ -54,7 +53,7 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
     """
     # Ensure missing values are converted to None
     data = data.where(pd.notnull(data), None)
-    
+
     plant_ids_in_data = data["plant_id"].tolist()
     existing_ids = get_existing_plant_ids(conn, plant_ids_in_data)
     print(f"Existing plant IDs in DB: {existing_ids}")
@@ -70,7 +69,7 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
         for _, plant in new_plants_data.iterrows():
             # Use sanitize() on each value to ensure NaN becomes None
             plant_id = sanitize(plant.get("plant_id"))
-            
+
             country = sanitize(plant.get("country"))
             if country is not None:
                 country = country.strip().upper()
@@ -78,7 +77,7 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
             region = sanitize(plant.get("region"))
             if region is not None:
                 region = region.strip().title()
-            
+
             latitude = sanitize(plant.get("latitude"))
             longitude = sanitize(plant.get("longitude"))
             image_license = sanitize(plant.get("image_license"))
@@ -86,13 +85,13 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
             image_original_url = sanitize(plant.get("image_original_url"))
             scientific_name = sanitize(plant.get("scientific_name"))
             plant_name = sanitize(plant.get("name"))
-            
+
             # Round latitude and longitude to 5 decimal places
             if latitude is not None:
                 latitude = round(latitude, 5)
             if longitude is not None:
                 longitude = round(longitude, 5)
-            
+
             # Insert or update country
             cursor.execute(
                 """
@@ -110,7 +109,8 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
             cursor.execute(
                 """
                 MERGE alpha.region AS target
-                USING (SELECT %s AS region_name, (SELECT country_id FROM alpha.country WHERE country_code = %s) AS country_id) AS source
+                USING (SELECT %s AS region_name, (SELECT country_id 
+                FROM alpha.country WHERE country_code = %s) AS country_id) AS source
                 ON target.region_name = source.region_name AND target.country_id = source.country_id
                 WHEN NOT MATCHED THEN
                     INSERT (region_name, country_id)
@@ -118,7 +118,7 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
                 """,
                 (region, country)
             )
-            
+
             # Retrieve region_id explicitly
             cursor.execute(
                 "SELECT region_id FROM alpha.region WHERE region_name = %s",
@@ -129,8 +129,9 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
                 raise ValueError(f"Failed to retrieve region_id for region '{region}'")
             region_id = reg_row[0]
             print(f"Region '{region}' has region_id: {region_id}")
-            
-            # Merge the location row using the retrieved region_id and output the inserted location_id.
+
+            # Merge the location row using the retrieved region_id
+            # and output the inserted location_id.
             cursor.execute(
                 """
                 MERGE alpha.location AS target
@@ -169,9 +170,10 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
                     )
                 location_id = loc_row[0]
                 print(f"Existing location found: location_id = {location_id}")
-            
+
             # Only upload license and image if all required values are present
-            if image_license is not None and image_license_name is not None and image_original_url is not None:
+            if image_license is not None and image_license_name is not None \
+            and image_original_url is not None:
                 cursor.execute(
                     """
                     MERGE alpha.license AS target
@@ -200,13 +202,15 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
             cursor.execute(
                 """
                 MERGE alpha.plant AS target
-                USING (SELECT %s AS plant_id, %s AS location_id, %s AS scientific_name, 
-                              (SELECT image_id FROM alpha.image WHERE original_url = %s) AS image_id, 
+                USING (SELECT %s AS plant_id, %s AS location_id, %s AS scientific_name,
+                              (SELECT image_id FROM alpha.image
+                              WHERE original_url = %s) AS image_id,
                               %s AS common_name) AS source
                 ON target.plant_id = source.plant_id
                 WHEN NOT MATCHED THEN
                     INSERT (plant_id, location_id, scientific_name, image_id, common_name)
-                    VALUES (source.plant_id, source.location_id, source.scientific_name, source.image_id, source.common_name);
+                    VALUES (source.plant_id, source.location_id,
+                    source.scientific_name, source.image_id, source.common_name);
                 """,
                 (plant_id, location_id, scientific_name, image_original_url, plant_name)
             )
@@ -280,7 +284,7 @@ def upload_reading_data(conn: pymssql.Connection, batch_data: pd.DataFrame) -> N
     """
     # Ensure missing values are converted to None
     batch_data = batch_data.where(pd.notnull(batch_data), None)
-    
+
     cursor = conn.cursor()
     for _, row in batch_data.iterrows():
         # Retrieve plant_id based on the common name
@@ -304,7 +308,7 @@ def upload_reading_data(conn: pymssql.Connection, batch_data: pd.DataFrame) -> N
         """, (botanist_email,))
         botanist_result = cursor.fetchone()
         if not botanist_result:
-            continue  
+            continue
         botanist_id = botanist_result[0]
 
         cursor.execute("""

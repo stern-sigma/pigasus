@@ -105,7 +105,7 @@ def test_extract_plant_batch_returns_list_length(mock_get_plant_data, mock_max_p
     mock_get_plant_data.side_effect = dummy_get_plant_data
 
     result = extract.extract_plant_batch()
-    expected_length = (100 + 100 // 10) + 1 # Assuming get_max_plant_id returns 100, plus 10%
+    expected_length = (100 + 100 // 10) - 1 # Assuming get_max_plant_id returns 100, plus 10%
     assert len(result) == expected_length
 
 
@@ -149,7 +149,7 @@ def test_extract_plant_batch_failure_returns_half_items(mock_get_plant_data, moc
 
     result = extract.extract_plant_batch()
     total_plants = 50 + (50 // 10)  # 50 plants plus 10%
-    expected_successful = (total_plants + 1) // 2
+    expected_successful = (total_plants) // 2
     # Plus 1 because we start counting from 1, which is odd
     assert len(result) == expected_successful
 

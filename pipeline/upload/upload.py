@@ -42,8 +42,8 @@ def get_existing_plant_ids(conn: pymssql.Connection, plant_ids: list) -> set:
 
 def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame) -> None:
     """
-    Uploads all new plants along with their country, region, location, and plant details
-    using SQL Server's MERGE statement.
+    Uploads new plant data, including location, images, and plant details, into the database.
+    Handles relationships and dependencies between tables.
     """
     plant_ids_in_data = data["plant_id"].tolist()
     existing_ids = get_existing_plant_ids(conn, plant_ids_in_data)
@@ -58,6 +58,7 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
 
     with conn.cursor() as cursor:
         for _, plant in new_plants_data.iterrows():
+            # Insert or update country
             cursor.execute(
                 """
                 MERGE alpha.country AS target
@@ -70,6 +71,7 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
                 (plant["country"],)
             )
 
+            # Insert or update region
             cursor.execute(
                 """
                 MERGE alpha.region AS target
@@ -84,6 +86,7 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
                 (plant["region"], plant["country"])
             )
 
+            # Insert or update location
             cursor.execute(
                 """
                 MERGE alpha.location AS target
@@ -99,30 +102,59 @@ def upload_new_plants_with_location(conn: pymssql.Connection, data: pd.DataFrame
                 (plant["latitude"], plant["longitude"], plant["region"])
             )
 
+            # Insert or update license
+            cursor.execute(
+                """
+                MERGE alpha.license AS target
+                USING (SELECT %s AS license_id, %s AS license_name, %s AS license_url) AS source
+                ON target.license_id = source.license_id
+                WHEN NOT MATCHED THEN
+                    INSERT (license_id, license_name, license_url)
+                    VALUES (source.license_id, source.license_name, source.license_url);
+                """,
+                (plant["image_license"], plant["license_name"], plant["image_original_url"])
+            )
+
+            # Insert or update image
+            cursor.execute(
+                """
+                MERGE alpha.image AS target
+                USING (SELECT %s AS license_id, %s AS original_url) AS source
+                ON target.original_url = source.original_url
+                WHEN NOT MATCHED THEN
+                    INSERT (license_id, original_url)
+                    VALUES (source.license_id, source.original_url);
+                """,
+                (plant["image_license"], plant["image_original_url"])
+            )
+
+            # Insert or update plant
             cursor.execute(
                 """
                 MERGE alpha.plant AS target
                 USING (SELECT %s AS plant_id, (
                         SELECT location_id FROM alpha.location
                         WHERE latitude = %s AND longitude = %s
-                    ) AS location_id, %s AS scientific_name,
-                    %s AS image_id, %s AS common_name) AS source
+                    ) AS location_id, %s AS scientific_name, (
+                        SELECT image_id FROM alpha.image
+                        WHERE original_url = %s
+                    ) AS image_id, %s AS common_name) AS source
                 ON target.plant_id = source.plant_id
                 WHEN NOT MATCHED THEN
                     INSERT (plant_id, location_id, scientific_name, image_id, common_name)
-                    VALUES (source.plant_id, source.location_id,
-                    source.scientific_name, source.image_id, source.common_name);
+                    VALUES (source.plant_id, source.location_id, source.scientific_name, source.image_id, source.common_name);
                 """,
                 (
                     plant["plant_id"],
                     plant["latitude"], plant["longitude"],
                     plant["scientific_name"],
-                    plant["image_id"],
+                    plant["image_original_url"],
                     plant["name"]
                 )
             )
         conn.commit()
     print("Upload process completed.")
+
 
 
 def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None:
@@ -168,37 +200,3 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None
         cursor.execute(drop_temp_table_sql)
 
     conn.commit()
-
-
-
-
-if __name__ == '__main__':
-    load_dotenv()
-
-    connection = get_connection()
-
-    new_plant_data = pd.DataFrame([{
-        "botanist_email": "eliza.andrews@lnhm.co.uk",
-        "botanist_name": "Eliza Andrews",
-        "botanist_phone": "(846)669-6651x75948",
-        "region": "Mars Outpost Alpha",
-        "country": "MC",
-        "scientific_name": "Extra Terrestrialus",
-        "image_license": 451,
-        "license_name": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
-        "image_original_url": "https://perenual.com/storage/image/alien_flower.jpg",
-        "last_watered": pd.to_datetime("2025-02-05 13:23:01"),
-        "recording_taken": pd.to_datetime("2025-02-06 11:45:30"),
-        "plant_id": 9999,
-        "soil_moisture": 99.99,
-        "temperature": -42.42,
-        "name": "Martian Death Bloom",
-        "latitude": 0.0,
-        "longitude": 0.0,
-        "image_id": None
-    }])
-
-
-    print(new_plant_data)
-    upload_new_plants_with_location(connection, new_plant_data)
-    connection.close()

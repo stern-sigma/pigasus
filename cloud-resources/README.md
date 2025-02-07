@@ -12,17 +12,17 @@ For the terraform to work, the following must be set up:
 - Create a file called 'terraform.tfvars'
 - Your terraform.tfvars should have the following format:
   ```HCL
-  AWS_VPC_ID = <str: id of your VPC>
-  DB_HOST = <str: host of your database>
-  DB_PORT = <int: port over which your database runs>
-  DB_PASSWORD = <str: your db password>
-  DB_USER = <str: your db username>
-  SCHEMA_NAME = <str: the schema of your database in which your tables are stored>
-  public_subnet_ids = <list(str): a list of ids of subnets for resources to be made avilable from. Must be public and located within the same VPC as your AWS_VPC_ID>
-  cluster_arn = <str: the arn of the ECS cluster in which you want any ACS tasks to run>
-  my_email = <str: the email which you want to handle alert emails. Must be verified in AWS>
-  access_key = <str: you aws access key>
-  secret_access_key = <str: your aws secret access key>
+  AWS_VPC_ID = <string: id of your VPC>
+  DB_HOST = <string: host of your database>
+  DB_PORT = <number: port over which your database runs>
+  DB_PASSWORD = <string: your db password>
+  DB_USER = <string: your db username>
+  SCHEMA_NAME = <string: the schema of your database in which your tables are stored>
+  public_subnet_ids = <list(string): a list of ids of subnets for resources to be made avilable from. Must be public and located within the same VPC as your AWS_VPC_ID>
+  cluster_arn = <string: the arn of the ECS cluster in which you want any ACS tasks to run>
+  my_email = <string: the email which you want to handle alert emails. Must be verified in AWS>
+  access_key = <string: you aws access key>
+  secret_access_key = <string: your aws secret access key>
   ```
 - You must have the Docker daemon running
 

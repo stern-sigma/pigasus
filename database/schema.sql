@@ -11,9 +11,9 @@ DROP TABLE IF EXISTS alpha.license;
 
 CREATE TABLE alpha.botanist (
     botanist_id SMALLINT PRIMARY KEY IDENTITY(1,1),
-    email VARCHAR(20),
+    email VARCHAR(50),
     name VARCHAR(20) NOT NULL,
-    phone_number VARCHAR(20) NOT NULL
+    phone_number VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE alpha.country (

@@ -1,8 +1,10 @@
 """Functions used to alert botanist on 3 successive abnormal readings
 Will generate a basic email with all of the require info."""
+# pylint: disable=no-member
 
 import os
 import datetime
+from typing import List, Dict, Any
 import pymssql
 from dotenv import load_dotenv
 
@@ -27,7 +29,7 @@ def get_connection():
     )
 
 
-def is_abnormal(reading):
+def is_abnormal(reading: Dict[str, Any]):
     """
     Returns True if either the temperature or the soil moisture in the given
     reading is outside the normal range.
@@ -39,7 +41,7 @@ def is_abnormal(reading):
     return abnormal_temp or abnormal_moisture
 
 
-def fetch_readings(conn):
+def fetch_readings(conn: pymssql.Connection) -> List[Dict[str, Any]]:
     """
     Fetch last 3 readings from the database along with the botanist email.
     The results are ordered by plant_id and descending timestamp so that for each
@@ -67,7 +69,7 @@ def fetch_readings(conn):
         rows = cursor.fetchall()
     return rows
 
-def generate_email(plant_id, readings):
+def generate_email(plant_id: int, readings):
     """
     Generate an HTML email alert for the given plant, including its plant ID and
     details from the last three readings.
@@ -89,7 +91,7 @@ def generate_email(plant_id, readings):
     email_html += "</body></html>"
     return email_html
 
-def lambda_handler(event, context): # pylint: disable=W0613
+def lambda_handler(event: Dict[str, Any], context: Any) -> List[Dict[str, str]]: # pylint: disable=W0613
     """
     AWS Lambda handler.
     This function connects to the database, checks the last three readings
@@ -131,8 +133,3 @@ def lambda_handler(event, context): # pylint: disable=W0613
 
     finally:
         conn.close()
-
-if __name__ == '__main__':
-    result = lambda_handler({}, {})
-    import json
-    print(json.dumps(result, indent=2))

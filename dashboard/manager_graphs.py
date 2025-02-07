@@ -1,9 +1,10 @@
 """Module of graphs to be used in the manager's dashboard."""
 
 import plotly_express as px
+from streamlit import connection
 
 
-def botanist_reading_bar_chart(conn):
+def botanist_reading_bar_chart(conn: connection):
     """Returns a bar chart displaying number of readings taken per botanist."""
     q = """
     SELECT COUNT(*) as count, b.name
@@ -17,7 +18,7 @@ def botanist_reading_bar_chart(conn):
     return bar_chart
 
 
-def botanist_pie_chart(conn, botanist):
+def botanist_pie_chart(conn: connection, botanist: str):
     """Returns a pie chart showing proportion of healthy readings taken per botanist."""
     q = """
     WITH healthy_readings AS(
@@ -41,7 +42,7 @@ def botanist_pie_chart(conn, botanist):
     return pie_chart
 
 
-def count_days_since_watered(conn, botanist):
+def count_days_since_watered(conn: connection, botanist: str):
     """Returns bar chart showing count of days since last watered per botanist."""
     q = """
     SELECT COUNT(DATEDIFF(DAY, last_watered, CURRENT_TIMESTAMP)) AS count, 
@@ -59,7 +60,7 @@ def count_days_since_watered(conn, botanist):
     return bar_chart
 
 
-def botanist_plant_reading_count(conn, plant_name):
+def botanist_plant_reading_count(conn: connection, plant_name: list[str]):
     """Returns a bar chart showing how many readings a botanist has for a certain plant."""
 
     q = """

@@ -1,9 +1,10 @@
 """Module of graphs to be used in the dashboard."""
 
 import plotly_express as px
+from streamlit import connection
 
 
-def watering_pie_chart(conn):
+def watering_pie_chart(conn: connection):
     """Returns a pie chart displaying plant watering data."""
     q = """
     WITH watered AS (
@@ -21,7 +22,7 @@ def watering_pie_chart(conn):
     return px.pie(watering_status_df, values="count", names="status", title="Proportion of Plants Recently Watered")
 
 
-def temperature_pie_chart(conn):
+def temperature_pie_chart(conn: connection):
     """Returns a pie chart displaying plant temperature data."""
     q = """
     with temperatures AS (
@@ -41,7 +42,7 @@ def temperature_pie_chart(conn):
     return px.pie(temperature_status_df, values="count", names="status", title="Proportion of Plants Within Ideal Temperature Range")
 
 
-def moisture_pie_chart(conn):
+def moisture_pie_chart(conn: connection):
     """Returns a pie chart displaying plant moisture data."""
     q = """
     with moisture AS (
@@ -60,7 +61,7 @@ def moisture_pie_chart(conn):
     return px.pie(soil_moisture_df, values="count", names="status", title="Proportion of Plants With Ideal Soil Moisture")
 
 
-def last_watered_bar_chart(conn):
+def last_watered_bar_chart(conn: connection):
     """Returns a bar chart displaying number of plants last watered within a timeframe."""
     q = """
         SELECT CASE 
@@ -81,7 +82,7 @@ def last_watered_bar_chart(conn):
     return chart
 
 
-def plant_temperature_line_graph(conn, plant):
+def plant_temperature_line_graph(conn: connection, plant: str):
     """Returns a line graph showing a plant's 24 hour temperature history."""
 
     q = """
@@ -103,7 +104,7 @@ def plant_temperature_line_graph(conn, plant):
     return graph
 
 
-def soil_moisture_line_graph(conn, plant):
+def soil_moisture_line_graph(conn: connection, plant: str):
     """Returns a line graph showing a plant's 24 hour soil moisture history"""
     q = """
     SELECT ROUND(AVG(r.soil_moisture),2) as 'Average Soil Moisture', DATE_BUCKET(MINUTE, 5, r.AT) as 'Time Recorded'
@@ -123,7 +124,7 @@ def soil_moisture_line_graph(conn, plant):
     return graph
 
 
-def healthy_plant_count(conn):
+def healthy_plant_count(conn: connection):
     """Returns number of healthy plants counted."""
     q = """
     SELECT COUNT(*) as count FROM alpha.reading
@@ -136,7 +137,7 @@ def healthy_plant_count(conn):
     return healthy_plants["count"]
 
 
-def at_risk_plant_count(conn):
+def at_risk_plant_count(conn: connection):
     """Returns number of plants at risk."""
     q = """
     SELECT COUNT(*) as count FROM alpha.reading

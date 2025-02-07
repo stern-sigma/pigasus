@@ -6,14 +6,14 @@ import streamlit as st
 from graphs import watering_pie_chart, temperature_pie_chart, last_watered_bar_chart, soil_moisture_line_graph, plant_temperature_line_graph, moisture_pie_chart, healthy_plant_count, at_risk_plant_count
 
 
-def get_connection():
+def get_connection() -> st.connection:
     """Establishes streamlit connection to database."""
     return st.connection("sql", host=environ["DB_HOST"], port=environ["DB_PORT"],
                          database=environ["DB_NAME"], username=environ["DB_USER"],
                          password=environ["DB_PASSWORD"], dialect="mssql+pymssql")
 
 
-def get_plant_id(conn) -> list:
+def get_plant_id(conn: st.connection) -> list[int]:
     """Returns list of plant IDs from the database"""
     q = """
     SELECT DISTINCT(plant_id) FROM alpha.reading

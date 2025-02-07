@@ -1,4 +1,5 @@
 """Script to present plant data on streamlit dashboard."""
+# pylint: disable=invalid-name, line-too-long
 
 from os import environ
 from dotenv import load_dotenv
@@ -14,7 +15,7 @@ def get_connection() -> st.connection:
                          password=environ["DB_PASSWORD"], dialect="mssql+pymssql")
 
 
-def botanist_count(conn):
+def botanist_count(conn: st.connection) -> int:
     """Returns number of botanists."""
     q = """
         SELECT COUNT(DISTINCT(botanist_id)) as count
@@ -24,7 +25,7 @@ def botanist_count(conn):
     return botanist_df["count"]
 
 
-def botanist_with_most_readings(conn):
+def botanist_with_most_readings(conn: st.connection) -> str:
     """Returns botanist name with most readings."""
     q = """
         SELECT TOP 1 count(reading_id) as count, b.name as name
@@ -38,7 +39,7 @@ def botanist_with_most_readings(conn):
     return top_botanist_df["name"].iloc[0]
 
 
-def list_botanist_names(conn):
+def list_botanist_names(conn: st.connection) -> list[str]:
     """Returns a list of botanist names."""
     q = """
     SELECT name FROM alpha.botanist
@@ -48,7 +49,7 @@ def list_botanist_names(conn):
     return names
 
 
-def list_plant_names(conn) -> list:
+def list_plant_names(conn: st.connection) -> list[str]:
     """Returns list of plant IDs from the database"""
     q = """
     SELECT DISTINCT(scientific_name) FROM alpha.plant

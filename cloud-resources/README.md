@@ -21,6 +21,8 @@ For the terraform to work, the following must be set up:
   public_subnet_ids = <list(str): a list of ids of subnets for resources to be made avilable from. Must be public and located within the same VPC as your AWS_VPC_ID>
   cluster_arn = <str: the arn of the ECS cluster in which you want any ACS tasks to run>
   my_email = <str: the email which you want to handle alert emails. Must be verified in AWS>
+  access_key = <str: you aws access key>
+  secret_access_key = <str: your aws secret access key>
   ```
 - You must have the Docker daemon running
 
@@ -33,11 +35,10 @@ For the terraform to work, the following must be set up:
 
 ## Usage 🫡
 
-Guidance on how to run the script. 
-- This should include the command to run the script as well as information on any additional arguments that can be used in the script. 
-- Can also make note of any other important information here.
-
-
-## Help (Optional) 🤔
-Any known common issues can be advised on here.
-
+To deploy the resources, run the following commands:
+```bash
+terraform init
+terraform apply
+yes
+```
+You will generate several outputs, which can then be used to configure the environments of your cloud resources, or to deploy your images.

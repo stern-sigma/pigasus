@@ -48,3 +48,7 @@ variable "SCHEMA_NAME" {
 variable "public_subnet_ids" {
   type = list(string)
 }
+
+variable "cluster_arn" {
+  type = string
+}

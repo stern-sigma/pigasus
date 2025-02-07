@@ -169,8 +169,8 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None
 
     conn.commit()
 
-def upload_readings(df:pd.DataFrame) -> None:
-    ...
+
+
 
 if __name__ == '__main__':
     load_dotenv()
@@ -197,6 +197,7 @@ if __name__ == '__main__':
         "longitude": 0.0,
         "image_id": None
     }])
+
 
     print(new_plant_data)
     upload_new_plants_with_location(connection, new_plant_data)

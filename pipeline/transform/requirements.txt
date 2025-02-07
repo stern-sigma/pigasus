@@ -1,0 +1,6 @@
+pandas
+pytest
+pylint
+pytest-cov
+numpy
+requests

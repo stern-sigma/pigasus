@@ -1,0 +1,5 @@
+pytest
+pylint
+pymssql
+pandas
+python-dotenv

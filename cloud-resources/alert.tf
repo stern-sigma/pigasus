@@ -220,3 +220,67 @@ resource "aws_sfn_state_machine" "alert" {
   )
   type = "STANDARD"
 }
+
+data "aws_iam_policy_document" "alert_scheduler_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+
+}
+
+data "aws_iam_policy_document" "alert_scheduler_role_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "states:StartExecution"
+    ]
+    resources = [
+      "${aws_sfn_state_machine.alert.arn}"
+    ]
+  }
+
+    statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+}
+
+resource "aws_iam_role" "alert_scheduler_role" {
+  name = "pigasus-state-scheduler-role"
+  assume_role_policy = data.aws_iam_policy_document.alert_scheduler_role.json
+}
+
+resource "aws_iam_role_policy" "alert_scheduler_policy"{
+  name = "pigasus-alert-scheduler-policy"
+  role = aws_iam_role.alert_scheduler_role.id
+  policy = data.aws_iam_policy_document.alert_scheduler_role_policy.json
+}
+
+
+resource "aws_scheduler_schedule" "alert_schedule" {
+  name = "c15-stern-report"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  schedule_expression = "cron(* * ? * * *)"
+
+  target {
+    arn = aws_sfn_state_machine.alert.arn
+    role_arn = aws_iam_role.alert_scheduler_role.arn
+  }
+}

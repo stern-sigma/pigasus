@@ -203,33 +203,3 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None
 
 def upload_readings(df:pd.DataFrame) -> None:
     ...
-
-if __name__ == '__main__':
-    load_dotenv()
-
-    connection = get_connection()
-
-    
-    new_plant_data = pd.DataFrame([{
-    "botanist_email": "john.doe@lnhm.co.uk",
-    "botanist_name": "John Doe",
-    "botanist_phone": "(123)456-7890",
-    "region": "Earth Outpost Beta",
-    "country": "EC",
-    "scientific_name": "Terrestrialus Beta",
-    "image_license": 452,
-    "license_name": "CC BY 4.0 International",
-    "image_original_url": "https://perenual.com/storage/image/earth_flower.jpg",
-    "last_watered": pd.to_datetime("2025-02-06 09:00:00"),
-    "recording_taken": pd.to_datetime("2025-02-07 10:00:00"),
-    "plant_id": 10000,
-    "soil_moisture": 80.0,
-    "temperature": 22.5,
-    "name": "Earthly Bloom",
-    "latitude": 10.0,
-    "longitude": 20.0,
-    "image_id": 1}])
-
-    print(new_plant_data)
-    upload_new_plants_with_location(connection, new_plant_data)
-    connection.close()

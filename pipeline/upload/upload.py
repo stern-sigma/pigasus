@@ -200,6 +200,3 @@ def update_botanists(conn: pymssql.Connection, batch_data: pd.DataFrame) -> None
         cursor.execute(drop_temp_table_sql)
 
     conn.commit()
-
-def upload_readings(df:pd.DataFrame) -> None:
-    ...

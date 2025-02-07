@@ -2,6 +2,7 @@
 import re
 import pandas as pd
 import numpy as np
+
 def convert_to_dataframe(raw_data:list[dict]):
     """Creates dataframe from data."""
     if not isinstance(raw_data, list):
@@ -27,10 +28,18 @@ def parse_botanist_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def parse_origin_location(df: pd.DataFrame) -> pd.DataFrame:
-    """Returns the origin_location column parsed into separate region and country columns, handling missing values."""
+    """Returns the origin_location parsed into separate latitude, longitude, region, and country columns,
+    while excluding the timezone."""
+
     if "origin_location" not in df.columns:
         df["origin_location"] = np.nan
 
+    df["latitude"] = df["origin_location"].apply(
+        lambda x: float(x[0]) if isinstance(x, list) and len(x) > 0 else np.nan
+    )
+    df["longitude"] = df["origin_location"].apply(
+        lambda x: float(x[1]) if isinstance(x, list) and len(x) > 1 else np.nan
+    )
     df["region"] = df["origin_location"].apply(
         lambda x: x[2] if isinstance(x, list) and len(x) > 2 else np.nan
     )
@@ -40,7 +49,6 @@ def parse_origin_location(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.drop(columns=["origin_location"])
     return df
-
 
 def clean_scientific_name(df:pd.DataFrame) -> pd.DataFrame:
     """Returns the scientific_name column cleaned - transformed into a string and ensured that it is consistent."""
@@ -78,8 +86,9 @@ def clean_image_data(df:pd.DataFrame) -> pd.DataFrame:
 
 
 
+
 def format_watered_column(df:pd.DataFrame) -> pd.DataFrame:
-    """Converts the last_watered column to a datetime object with second precision."""
+    """Returns the datafram with the last_watered column converted to a datetime object with second precision."""
     if "last_watered" not in df.columns:
         df["last_watered"] = np.nan
     else:
@@ -152,4 +161,5 @@ def transform_and_clean_data(raw_data: list[dict]):
     df = capitalise_plant_name(df)
     df = process_temperature_column(df)
     return df
+
 

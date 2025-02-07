@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import streamlit as st
 import plotly_express as px
 
-from manager_graphs import botanist_reading_bar_chart, botanist_pie_chart, count_days_since_watered
+from manager_graphs import botanist_reading_bar_chart, botanist_pie_chart, count_days_since_watered, botanist_plant_reading_count
 
 
 def get_connection():
@@ -62,6 +62,9 @@ def main():
             st.metric("Number of Botanists", botanist_count(conn))
             st.metric("Botanist With Most Readings",
                       botanist_with_most_readings(conn))
+        with col2:
+            st.plotly_chart(botanist_reading_bar_chart(conn))
+            st.plotly_chart(botanist_plant_reading_count(conn))
 
 
 if __name__ == "__main__":

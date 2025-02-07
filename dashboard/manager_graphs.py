@@ -39,8 +39,8 @@ def botanist_pie_chart(conn, botanist):
     GROUP BY status
     """
     pie_chart_df = conn.query(q, params={"botanist_name": botanist})
-    pie_chart = px.pie(pie_chart_df, title=f"Proportion of Healthy Readings Taken By {
-                       botanist}", values="count", names="status")
+    pie_chart = px.pie(pie_chart_df, values="count", names="status",
+                       title=f"Proportion of Healthy Readings Taken By {botanist}")
     return pie_chart
 
 
@@ -58,4 +58,22 @@ def count_days_since_watered(conn, botanist):
     bar_chart_df = conn.query(q, params={"botanist_name": botanist})
     bar_chart = px.bar(bar_chart_df, y="count",
                        x="Days Since Last Watered", title=f"Count Number of Days Since Last Watered for {botanist}")
+    return bar_chart
+
+
+def botanist_plant_reading_count(conn):
+    """Returns a bar chart showing how many readings a botanist has for a certain plant."""
+
+    q = """
+    SELECT COUNT(reading_id) AS count, b.name, p.scientific_name FROM alpha.reading AS r
+    JOIN alpha.botanist AS b
+    ON b.botanist_id = r.botanist_id
+    JOIN alpha.plant AS p
+    ON p.plant_id = r.plant_id
+    GROUP BY b.name, p.scientific_name
+    """
+
+    botanist_plant_reading_df = conn.query(q)
+    bar_chart = px.bar(botanist_plant_reading_df,
+                       x="scientific_name", y="count", color="name", barmode="group")
     return bar_chart

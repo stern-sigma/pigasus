@@ -32,25 +32,25 @@ CREATE TABLE alpha.location (
     location_id INT PRIMARY KEY IDENTITY(1,1),
     latitude DECIMAL NOT NULL,
     longitude DECIMAL NOT NULL,
-    region_id INT NOT NULL,
+    region_id SMALLINT NOT NULL,
     FOREIGN KEY (region_id) REFERENCES alpha.region(region_id)
 );
 
 CREATE TABLE alpha.license (
-    license_id SMALLINT PRIMARY KEY IDENTITY(1,1),
-    license_name TEXT NOT NULL,
-    license_url TEXT NOT NULL
+    license_id SMALLINT PRIMARY KEY,
+    license_name VARCHAR(MAX) NOT NULL,
+    license_url VARCHAR(MAX) NOT NULL
 );
 
 CREATE TABLE alpha.image (
     image_id INT PRIMARY KEY IDENTITY(1,1),
     license_id SMALLINT,
-    original_url TEXT NOT NULL,
+    original_url VARCHAR(MAX) NOT NULL,
     FOREIGN KEY (license_id) REFERENCES alpha.license(license_id)
 );
 
 CREATE TABLE alpha.plant (
-    plant_id INT PRIMARY KEY IDENTITY(1,1),
+    plant_id INT PRIMARY KEY,
     location_id INT NOT NULL,
     scientific_name VARCHAR(30),
     image_id INT,

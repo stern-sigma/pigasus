@@ -1,10 +1,10 @@
 """Module of graphs to be used in the dashboard."""
 
-from dotenv import load_dotenv
 import streamlit as st
 import plotly_express as px
 
 
+# Main dashboard graphs
 def watering_pie_chart(conn):
     """Returns a pie chart displaying plant watering data."""
     q = """
@@ -149,14 +149,3 @@ def at_risk_plant_count(conn):
 
     at_risk_plants = conn.query(q)
     return at_risk_plants["count"]
-
-
-if __name__ == "__main__":
-    load_dotenv()
-    conn = get_connection()
-    st.plotly_chart(watering_pie_chart(conn))
-    st.plotly_chart(temperature_pie_chart(conn))
-    st.plotly_chart(moisture_pie_chart(conn))
-    st.plotly_chart(last_watered_bar_chart(conn))
-    st.plotly_chart(plant_temperature_line_graph(conn))
-    st.plotly_chart(soil_moisture_line_graph(conn))

@@ -5,7 +5,6 @@ import streamlit as st
 import plotly_express as px
 
 from graphs import watering_pie_chart, temperature_pie_chart, last_watered_bar_chart, soil_moisture_line_graph, plant_temperature_line_graph, moisture_pie_chart, healthy_plant_count, at_risk_plant_count
-st.set_page_config(layout="wide")
 
 
 def get_connection():
@@ -27,6 +26,7 @@ def get_plant_id(conn) -> list:
 
 def main():
     """Main script to run the streamlit dashboard."""
+    st.set_page_config(layout="wide")
     load_dotenv()
     conn = get_connection()
     header = st.container()

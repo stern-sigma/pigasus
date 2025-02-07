@@ -3,11 +3,13 @@ from os import environ
 from dotenv import load_dotenv
 import streamlit as st
 
-from graphs import watering_pie_chart, temperature_pie_chart, last_watered_bar_chart, soil_moisture_line_graph, plant_temperature_line_graph, moisture_pie_chart, healthy_plant_count, at_risk_plant_count
+from graphs import (watering_pie_chart, temperature_pie_chart, last_watered_bar_chart,
+                    soil_moisture_line_graph, plant_temperature_line_graph, moisture_pie_chart,
+                    healthy_plant_count, at_risk_plant_count)
 
 
 def get_connection() -> st.connection:
-    """Establishes streamlit connection to database."""
+    """Returns streamlit connection to database."""
     return st.connection("sql", host=environ["DB_HOST"], port=environ["DB_PORT"],
                          database=environ["DB_NAME"], username=environ["DB_USER"],
                          password=environ["DB_PASSWORD"], dialect="mssql+pymssql")

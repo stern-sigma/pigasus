@@ -5,7 +5,8 @@ from os import environ
 from dotenv import load_dotenv
 import streamlit as st
 
-from manager_graphs import botanist_reading_bar_chart, botanist_pie_chart, count_days_since_watered, botanist_plant_reading_count
+from manager_graphs import (botanist_reading_bar_chart, botanist_pie_chart,
+                            count_days_since_watered, botanist_plant_reading_count)
 
 
 def get_connection() -> st.connection:

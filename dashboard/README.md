@@ -39,7 +39,7 @@ The following terms have been decided by the described metrics.
   - **Below Ideal Temperature**: < 13°C
   
 - The ideal soil moisture levels for plants is **between 21-40%**.
-  - **Above Ideal Soil Moisture**: > 60%
+  - **Above Ideal Soil Moisture**: > 90%
   - **Below Ideal Soil Moisture**: < 18%
 
 - Ideally, plants should be watered every **4-5 days**.

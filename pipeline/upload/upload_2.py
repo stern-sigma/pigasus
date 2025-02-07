@@ -61,6 +61,43 @@ def insert_new_botanists(conn, df):
     cursor.close()
 
 
+def insert_new_countries(conn, df):
+    """
+    Inserts unique country codes from a DataFrame into the database, avoiding duplicates.
+
+    Parameters:
+        conn: Active pymssql database connection.
+        df (pd.DataFrame): DataFrame containing country details.
+
+    Returns:
+        None
+    """
+    cursor = conn.cursor()
+
+    # Extract unique country codes from the DataFrame
+    unique_countries = df[['country']].drop_duplicates()
+
+    # Fetch existing country codes from the database
+    cursor.execute("SELECT country_code FROM alpha.country")
+    # Convert result to a set for fast lookup
+    existing_countries = {row[0] for row in cursor.fetchall()}
+
+    # Filter only new countries
+    new_countries = unique_countries[~unique_countries['country'].isin(
+        existing_countries)]
+
+    # Insert only new countries (batch processing)
+    if not new_countries.empty:
+        values = [tuple(x) for x in new_countries.to_numpy()]
+        cursor.executemany(
+            "INSERT INTO alpha.country (country_code) VALUES (%s)", values)
+        conn.commit()
+        print(f"✅ Inserted {len(values)} new countries.")
+    else:
+        print("⏭️ No new countries to insert.")
+
+    cursor.close()
+
 
 
 
@@ -128,6 +165,7 @@ if __name__ == '__main__':
     ]
     sample_data = transform_and_clean_data(sample)
     insert_new_botanists(connection, sample_data)
+    insert_new_countries(connection, sample_data)
     # upload_new_plants_with_location(connection, sample_data)
     # upload_readings(connection, new_plant_data)
 

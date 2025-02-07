@@ -201,5 +201,4 @@ if __name__ == '__main__':
 
     print(new_plant_data)
     upload_new_plants_with_location(connection, new_plant_data)
-    upload_readings(connection, new_plant_data)
     connection.close()
